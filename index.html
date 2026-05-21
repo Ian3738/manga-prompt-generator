@@ -363,6 +363,14 @@
     flex-wrap: wrap;
     gap: 6px;
     margin-top: 4px;
+    margin-bottom: 6px;
+  }
+  .char-section-label {
+    font-size: 11px;
+    color: var(--gray);
+    font-weight: 600;
+    margin-top: 8px;
+    letter-spacing: 0.5px;
   }
   .char-example {
     background: var(--bg-card);
@@ -552,6 +560,31 @@
   .lang-tab.active {
     background: var(--primary);
     color: white;
+  }
+  .lang-tab-hot {
+    position: relative;
+    background: linear-gradient(135deg, rgba(255, 183, 197, 0.25), rgba(255, 217, 61, 0.25));
+    color: var(--accent-dark);
+  }
+  .lang-tab-hot::after {
+    content: '推薦';
+    position: absolute;
+    top: -6px;
+    right: -8px;
+    background: var(--accent);
+    color: white;
+    font-size: 9px;
+    padding: 1px 5px;
+    border-radius: 6px;
+    font-weight: 700;
+  }
+  .lang-tab-hot.active {
+    background: linear-gradient(135deg, var(--sakura-deep), var(--accent));
+    color: white;
+  }
+  .lang-tab-hot.active::after {
+    background: var(--gold);
+    color: var(--dark);
   }
 
   .prompt-text {
@@ -799,6 +832,7 @@
     <div class="character-input">
       <label>主角設定（選填，留白會用通用描述）</label>
       <input type="text" id="characterInput" placeholder="例：穿白色制服的高中女生、戴眼鏡的少年..." />
+      <div class="char-section-label">🇹🇼 中文範例</div>
       <div class="character-examples" id="charExamples">
         <button class="char-example" data-val="穿水手服的高中女生，黑色短髮">高中女生</button>
         <button class="char-example" data-val="戴眼鏡的少年，背著吉他">文藝少年</button>
@@ -808,6 +842,17 @@
         <button class="char-example" data-val="戴帽子的小學生，背書包">活潑小學生</button>
         <button class="char-example" data-val="留長髮的神社巫女，紅白巫女服">巫女</button>
         <button class="char-example" data-val="穿皮夾克的反叛少年，瀏海遮住一眼">反叛少年</button>
+      </div>
+      <div class="char-section-label">🇯🇵 日本語の例</div>
+      <div class="character-examples">
+        <button class="char-example" data-val="セーラー服を着た高校生の女の子、黒のショートヘア">JK</button>
+        <button class="char-example" data-val="眼鏡をかけた少年、ギターを背負って">文化系少年</button>
+        <button class="char-example" data-val="着物姿の少女、黒の長髪を赤い紐で結んで">着物の少女</button>
+        <button class="char-example" data-val="スーツ姿の疲れたサラリーマン">サラリーマン</button>
+        <button class="char-example" data-val="銀髪ショートの少女、冷静な眼差し">クール少女</button>
+        <button class="char-example" data-val="ランドセルを背負った元気な小学生">小学生</button>
+        <button class="char-example" data-val="長い黒髪の神社の巫女、紅白の巫女装束">巫女さん</button>
+        <button class="char-example" data-val="革ジャンを着た反抗的な少年、片目を隠す前髪">不良少年</button>
       </div>
     </div>
   </section>
@@ -920,62 +965,66 @@
 <script>
 // ===== 漫畫／動畫風格 =====
 const STYLES = {
-  ghibli:    { emoji: "🌿", zh: "吉卜力風", en: "Studio Ghibli hand-drawn anime style, warm naturalistic palette, soft hand-painted backgrounds" },
-  shinkai:   { emoji: "🌌", zh: "新海誠風", en: "Makoto Shinkai anime style, hyper-detailed cinematic skies, vivid lens flares, photorealistic environments with stylized characters" },
-  kyoani:    { emoji: "💧", zh: "京阿尼風", en: "Kyoto Animation style, delicate character animation, soft pastel palette, intimate slice-of-life framing" },
-  shonen:    { emoji: "⚡", zh: "少年漫畫風", en: "shōnen manga anime style, dynamic action lines, bold inking, high-energy composition" },
-  shojo:     { emoji: "🌸", zh: "少女漫畫風", en: "shōjo manga aesthetic, sparkle effects, soft watercolor pastels, dreamy romantic atmosphere, screentone shading" },
-  seinen:    { emoji: "🎬", zh: "青年漫畫風", en: "seinen manga style, realistic proportions, mature cinematic atmosphere, muted color palette" },
-  retro90s:  { emoji: "📼", zh: "90 年代復古", en: "1990s retro anime style, cel-shaded with visible animation cels, slight VHS grain, hand-painted backgrounds" },
-  cyberpunk: { emoji: "🌃", zh: "賽博龐克動畫", en: "cyberpunk anime style, rain-soaked neon-lit streets, holographic billboards, Akira-meets-Bladerunner aesthetic" },
-  mecha:     { emoji: "🤖", zh: "機戰動畫", en: "mecha anime style, hard-edged mechanical detail, dramatic backlighting, Gundam/Evangelion influence" },
-  watercolor:{ emoji: "🎨", zh: "水彩繪本風", en: "watercolor illustration anime style, gentle paint bleed, picture-book softness, hand-drawn line work" },
-  blackwhite:{ emoji: "📖", zh: "黑白漫畫稿", en: "black-and-white manga panel style, screentone shading, bold sumi-e ink, monochrome composition" },
-  chibi:     { emoji: "🍡", zh: "Q版可愛風", en: "chibi anime style, super-deformed cute characters, large expressive eyes, pastel candy palette" }
+  ghibli:    { emoji: "🌿", zh: "吉卜力風", ja: "ジブリ風アニメ、温かみのある手描きの背景、柔らかなパレット", en: "Studio Ghibli hand-drawn anime style, warm naturalistic palette, soft hand-painted backgrounds" },
+  shinkai:   { emoji: "🌌", zh: "新海誠風", ja: "新海誠スタイル、超精細な空と雲、鮮やかなレンズフレア、写実的な背景にスタイライズされたキャラクター", en: "Makoto Shinkai anime style, hyper-detailed cinematic skies, vivid lens flares, photorealistic environments with stylized characters" },
+  kyoani:    { emoji: "💧", zh: "京阿尼風", ja: "京アニ風、繊細なキャラクター作画、淡いパステル調、日常を切り取る親密な構図", en: "Kyoto Animation style, delicate character animation, soft pastel palette, intimate slice-of-life framing" },
+  shonen:    { emoji: "⚡", zh: "少年漫畫風", ja: "少年漫画風アニメ、ダイナミックな動線、力強い墨入れ、エネルギッシュな構図", en: "shōnen manga anime style, dynamic action lines, bold inking, high-energy composition" },
+  shojo:     { emoji: "🌸", zh: "少女漫畫風", ja: "少女漫画スタイル、キラキラエフェクト、淡い水彩パステル、夢見るようなロマンチックな雰囲気、スクリーントーン", en: "shōjo manga aesthetic, sparkle effects, soft watercolor pastels, dreamy romantic atmosphere, screentone shading" },
+  seinen:    { emoji: "🎬", zh: "青年漫畫風", ja: "青年漫画スタイル、リアルな人体比、成熟した映画的雰囲気、落ち着いたカラーパレット", en: "seinen manga style, realistic proportions, mature cinematic atmosphere, muted color palette" },
+  retro90s:  { emoji: "📼", zh: "90 年代復古", ja: "90年代レトロアニメ風、セル画調、わずかなVHSグレイン、手描き背景", en: "1990s retro anime style, cel-shaded with visible animation cels, slight VHS grain, hand-painted backgrounds" },
+  cyberpunk: { emoji: "🌃", zh: "賽博龐克動畫", ja: "サイバーパンクアニメ、雨に濡れたネオン街、ホログラム広告、AKIRA × ブレードランナー的美学", en: "cyberpunk anime style, rain-soaked neon-lit streets, holographic billboards, Akira-meets-Bladerunner aesthetic" },
+  mecha:     { emoji: "🤖", zh: "機戰動畫", ja: "メカアニメ風、硬質な機械描写、ドラマチックな逆光、ガンダム／エヴァ的影響", en: "mecha anime style, hard-edged mechanical detail, dramatic backlighting, Gundam/Evangelion influence" },
+  watercolor:{ emoji: "🎨", zh: "水彩繪本風", ja: "水彩イラスト風アニメ、優しい絵の具のにじみ、絵本のような柔らかさ、手描き線画", en: "watercolor illustration anime style, gentle paint bleed, picture-book softness, hand-drawn line work" },
+  blackwhite:{ emoji: "📖", zh: "黑白漫畫稿", ja: "モノクロ漫画スタイル、スクリーントーン、力強い墨絵、白黒構図", en: "black-and-white manga panel style, screentone shading, bold sumi-e ink, monochrome composition" },
+  chibi:     { emoji: "🍡", zh: "Q版可愛風", ja: "ちびキャラ風、デフォルメされた可愛いキャラ、大きな表情豊かな目、キャンディカラー", en: "chibi anime style, super-deformed cute characters, large expressive eyes, pastel candy palette" }
 };
 
 // ===== 日本地點 =====
 const LOCATIONS = {
-  shibuya:        { zh: "東京澀谷街頭", en: "Shibuya crossing in Tokyo with neon signs and bustling crowds" },
-  kyoto_alley:    { zh: "京都古老巷弄", en: "narrow stone alley in traditional Kyoto with wooden machiya houses" },
-  kyoto_shrine:   { zh: "京都神社參道", en: "Kyoto Shinto shrine path lined with red torii gates" },
-  kamakura:       { zh: "鎌倉海邊", en: "Kamakura beach with view of Enoshima island in the distance" },
-  fuji:           { zh: "富士山下", en: "tranquil rural landscape with Mount Fuji rising in the background" },
-  hokkaido:       { zh: "北海道雪原", en: "vast snow-covered plains of rural Hokkaido under wide sky" },
-  okinawa:        { zh: "沖繩海灘", en: "Okinawa tropical beach with white sand and turquoise water" },
-  classroom:      { zh: "高中教室", en: "Japanese high school classroom with afternoon light streaming through windows" },
-  rooftop:        { zh: "校園屋頂", en: "school rooftop with chain-link fence overlooking the city" },
-  matsuri:        { zh: "夏日祭典", en: "summer matsuri festival with paper lanterns, food stalls, and yukata-clad crowds" },
-  sakura:         { zh: "櫻花隧道", en: "tunnel of blooming cherry blossom trees with petals falling" },
-  train:          { zh: "電車內", en: "interior of a quiet Japanese commuter train with sunlight through windows" },
-  konbini:        { zh: "深夜便利商店", en: "Japanese convenience store at midnight with fluorescent lighting" },
-  rice_field:     { zh: "鄉村稻田", en: "rural Japanese rice paddies under wide open sky with distant mountains" },
-  fishing_port:   { zh: "漁港小鎮", en: "small Japanese fishing port at dawn with boats and seagulls" },
-  mountain_temple:{ zh: "山中寺廟", en: "mountain Buddhist temple surrounded by ancient cedar trees" },
-  ramen:          { zh: "拉麵小店", en: "cozy ramen shop interior with steam, red lanterns, and counter seating" },
-  arcade:         { zh: "電玩遊樂場", en: "Japanese game arcade with neon, CRT screens, and crane games" }
+  shibuya:        { zh: "東京澀谷街頭", ja: "東京・渋谷のスクランブル交差点、ネオン看板と人混み", en: "Shibuya crossing in Tokyo with neon signs and bustling crowds" },
+  kyoto_alley:    { zh: "京都古老巷弄", ja: "京都の細い石畳の路地、木造の町家が並ぶ", en: "narrow stone alley in traditional Kyoto with wooden machiya houses" },
+  kyoto_shrine:   { zh: "京都神社參道", ja: "京都の神社の参道、赤い鳥居が続く", en: "Kyoto Shinto shrine path lined with red torii gates" },
+  kamakura:       { zh: "鎌倉海邊", ja: "鎌倉の海辺、遠くに江ノ島が見える", en: "Kamakura beach with view of Enoshima island in the distance" },
+  fuji:           { zh: "富士山下", ja: "富士山の麓、静かな田園風景", en: "tranquil rural landscape with Mount Fuji rising in the background" },
+  hokkaido:       { zh: "北海道雪原", ja: "北海道の広大な雪原、広い空の下", en: "vast snow-covered plains of rural Hokkaido under wide sky" },
+  okinawa:        { zh: "沖繩海灘", ja: "沖縄の白い砂浜とエメラルドグリーンの海", en: "Okinawa tropical beach with white sand and turquoise water" },
+  classroom:      { zh: "高中教室", ja: "日本の高校の教室、窓から午後の光が差し込む", en: "Japanese high school classroom with afternoon light streaming through windows" },
+  rooftop:        { zh: "校園屋頂", ja: "学校の屋上、金網のフェンス越しに街並みが広がる", en: "school rooftop with chain-link fence overlooking the city" },
+  matsuri:        { zh: "夏日祭典", ja: "夏祭り、提灯と屋台、浴衣姿の人々で賑わう", en: "summer matsuri festival with paper lanterns, food stalls, and yukata-clad crowds" },
+  sakura:         { zh: "櫻花隧道", ja: "桜のトンネル、花びらが舞い散る", en: "tunnel of blooming cherry blossom trees with petals falling" },
+  train:          { zh: "電車內", ja: "静かな通勤電車の車内、窓から光が差し込む", en: "interior of a quiet Japanese commuter train with sunlight through windows" },
+  konbini:        { zh: "深夜便利商店", ja: "深夜のコンビニ、蛍光灯に照らされて", en: "Japanese convenience store at midnight with fluorescent lighting" },
+  rice_field:     { zh: "鄉村稻田", ja: "田舎の田んぼ、広い空と遠くの山々", en: "rural Japanese rice paddies under wide open sky with distant mountains" },
+  fishing_port:   { zh: "漁港小鎮", ja: "夜明けの小さな漁港、船とカモメ", en: "small Japanese fishing port at dawn with boats and seagulls" },
+  mountain_temple:{ zh: "山中寺廟", ja: "山中の古いお寺、古杉に囲まれて", en: "mountain Buddhist temple surrounded by ancient cedar trees" },
+  ramen:          { zh: "拉麵小店", ja: "小さなラーメン屋、湯気と赤提灯、カウンター席", en: "cozy ramen shop interior with steam, red lanterns, and counter seating" },
+  arcade:         { zh: "電玩遊樂場", ja: "ゲームセンター、ネオンとブラウン管モニター、クレーンゲーム", en: "Japanese game arcade with neon, CRT screens, and crane games" }
 };
 
 // ===== 季節 =====
 const SEASONS = {
   spring: {
-    emoji: "🌸", zh: "春", en: "spring",
+    emoji: "🌸", zh: "春", ja: "春", en: "spring",
     elements_zh: "櫻花盛開、粉色花瓣在微風中飄落、空氣清新",
+    elements_ja: "桜が満開、ピンクの花びらが優しい風に舞う、清々しい空気",
     elements_en: "cherry blossoms in full bloom, soft pink petals drifting on a gentle breeze, fresh air"
   },
   summer: {
-    emoji: "🌻", zh: "夏", en: "summer",
+    emoji: "🌻", zh: "夏", ja: "夏", en: "summer",
     elements_zh: "湛藍天空、白雲翻騰、蟬聲、翠綠樹葉",
+    elements_ja: "真っ青な空、入道雲、蝉の声、鮮やかな緑の葉",
     elements_en: "deep blue sky, billowing white cumulus clouds, cicada sounds, vibrant green leaves"
   },
   autumn: {
-    emoji: "🍁", zh: "秋", en: "autumn",
+    emoji: "🍁", zh: "秋", ja: "秋", en: "autumn",
     elements_zh: "紅葉與金黃銀杏、午後金光、涼爽空氣",
+    elements_ja: "紅葉と黄金色のイチョウ、午後の暖かな光、ひんやりとした空気",
     elements_en: "red maple and golden ginkgo leaves, warm afternoon light, crisp cool air"
   },
   winter: {
-    emoji: "❄️", zh: "冬", en: "winter",
+    emoji: "❄️", zh: "冬", ja: "冬", en: "winter",
     elements_zh: "輕柔飄雪、呼氣可見的白霧、寂靜",
+    elements_ja: "優しく降る雪、白い息、静寂",
     elements_en: "soft snowfall, visible breath in the cold air, quiet stillness"
   }
 };
@@ -983,121 +1032,211 @@ const SEASONS = {
 // ===== 故事類型（每個都有 3 幕劇結構）=====
 const GENRES = {
   romance: {
-    emoji: "💕", zh: "戀愛", desc: "從邂逅到心動的瞬間",
+    emoji: "💕", zh: "戀愛", ja: "恋愛", desc: "從邂逅到心動的瞬間",
     arcs: [
       {
-        name: "初次邂逅",
+        name: "初次邂逅", name_ja: "初めての出会い",
         scenes: [
-          { beat: "目光交會", action_zh: "與另一個人擦肩而過時，雙方目光短暫交會", action_en: "passing another person, their eyes briefly meet" },
-          { beat: "心動瞬間", action_zh: "停下腳步回頭看，視線停留在對方身上，背景變得朦朧", action_en: "stopping and turning back, gaze lingering on the other as the background softly blurs" },
-          { beat: "餘韻", action_zh: "對方離開後，獨自佇立原地，臉上浮現淡淡微笑", action_en: "as the other walks away, standing alone with a faint smile forming" }
+          { beat: "目光交會", beat_ja: "視線が交わる",
+            action_zh: "與另一個人擦肩而過時，雙方目光短暫交會",
+            action_ja: "別の人とすれ違う瞬間、二人の視線が一瞬交わる",
+            action_en: "passing another person, their eyes briefly meet" },
+          { beat: "心動瞬間", beat_ja: "ときめきの瞬間",
+            action_zh: "停下腳步回頭看，視線停留在對方身上，背景變得朦朧",
+            action_ja: "立ち止まって振り返り、相手をじっと見つめる、背景がぼやけていく",
+            action_en: "stopping and turning back, gaze lingering on the other as the background softly blurs" },
+          { beat: "餘韻", beat_ja: "余韻",
+            action_zh: "對方離開後，獨自佇立原地，臉上浮現淡淡微笑",
+            action_ja: "相手が去った後、一人立ち尽くし、淡い微笑みを浮かべる",
+            action_en: "as the other walks away, standing alone with a faint smile forming" }
         ]
       },
       {
-        name: "重逢時刻",
+        name: "重逢時刻", name_ja: "再会の時",
         scenes: [
-          { beat: "等待", action_zh: "獨自站在約定地點，眺望遠方，神情有些焦急", action_en: "standing alone at a meeting spot, looking toward the distance with slight worry" },
-          { beat: "出現", action_zh: "視線中對方的身影終於出現，奔跑而來", action_en: "the other person finally appearing in view, running toward them" },
-          { beat: "緊握", action_zh: "兩人相遇後緊緊牽手，相視而笑", action_en: "the two meet, hands gripping tightly, exchanging warm smiles" }
+          { beat: "等待", beat_ja: "待ち焦がれて",
+            action_zh: "獨自站在約定地點，眺望遠方，神情有些焦急",
+            action_ja: "約束の場所で一人立ち、遠くを見つめる、少し不安げな表情",
+            action_en: "standing alone at a meeting spot, looking toward the distance with slight worry" },
+          { beat: "出現", beat_ja: "再会",
+            action_zh: "視線中對方的身影終於出現，奔跑而來",
+            action_ja: "視界に相手の姿がついに現れ、駆け寄ってくる",
+            action_en: "the other person finally appearing in view, running toward them" },
+          { beat: "緊握", beat_ja: "強く握り合う",
+            action_zh: "兩人相遇後緊緊牽手，相視而笑",
+            action_ja: "二人が出会い、しっかりと手を握り合い、見つめ合って微笑む",
+            action_en: "the two meet, hands gripping tightly, exchanging warm smiles" }
         ]
       }
     ]
   },
   slice_of_life: {
-    emoji: "☕", zh: "校園日常", desc: "平淡卻溫暖的日常時光",
+    emoji: "☕", zh: "校園日常", ja: "日常系", desc: "平淡卻溫暖的日常時光",
     arcs: [
       {
-        name: "放學時光",
+        name: "放學時光", name_ja: "放課後",
         scenes: [
-          { beat: "下課鐘響", action_zh: "教室中下課鐘聲響起，收拾書包準備離開", action_en: "the dismissal bell ringing in a classroom, packing up a school bag" },
-          { beat: "並肩同行", action_zh: "和朋友走在回家路上，邊走邊聊著瑣碎日常", action_en: "walking home with friends, chatting casually about everyday things" },
-          { beat: "夕陽道別", action_zh: "在岔路口揮手道別，獨自走向夕陽", action_en: "waving goodbye at a fork in the road, then walking off into the sunset alone" }
+          { beat: "下課鐘響", beat_ja: "放課のチャイム",
+            action_zh: "教室中下課鐘聲響起，收拾書包準備離開",
+            action_ja: "教室で放課のチャイムが鳴り、鞄を片付ける",
+            action_en: "the dismissal bell ringing in a classroom, packing up a school bag" },
+          { beat: "並肩同行", beat_ja: "並んで歩く",
+            action_zh: "和朋友走在回家路上，邊走邊聊著瑣碎日常",
+            action_ja: "友達と一緒に下校しながら、たわいない話をする",
+            action_en: "walking home with friends, chatting casually about everyday things" },
+          { beat: "夕陽道別", beat_ja: "夕陽の別れ",
+            action_zh: "在岔路口揮手道別，獨自走向夕陽",
+            action_ja: "別れ道で手を振り、一人夕陽に向かって歩いていく",
+            action_en: "waving goodbye at a fork in the road, then walking off into the sunset alone" }
         ]
       },
       {
-        name: "午休片刻",
+        name: "午休片刻", name_ja: "昼休みのひととき",
         scenes: [
-          { beat: "午休鐘", action_zh: "午休鐘響，從教室走向頂樓", action_en: "the lunch bell rings, heading from classroom toward the rooftop" },
-          { beat: "獨享午餐", action_zh: "坐在欄杆邊吃便當，望向遠方", action_en: "sitting against the railing eating a bento, gazing out at the view" },
-          { beat: "輕風吹過", action_zh: "微風吹過頭髮，閉眼享受片刻寧靜", action_en: "a breeze passing through hair, eyes closed savoring the quiet moment" }
+          { beat: "午休鐘", beat_ja: "昼休みのチャイム",
+            action_zh: "午休鐘響，從教室走向頂樓",
+            action_ja: "昼休みのチャイムが鳴り、教室から屋上へ向かう",
+            action_en: "the lunch bell rings, heading from classroom toward the rooftop" },
+          { beat: "獨享午餐", beat_ja: "一人のお弁当",
+            action_zh: "坐在欄杆邊吃便當，望向遠方",
+            action_ja: "フェンスにもたれてお弁当を食べながら、遠くを眺める",
+            action_en: "sitting against the railing eating a bento, gazing out at the view" },
+          { beat: "輕風吹過", beat_ja: "そよ風",
+            action_zh: "微風吹過頭髮，閉眼享受片刻寧靜",
+            action_ja: "そよ風が髪を撫で、目を閉じて静かなひとときを味わう",
+            action_en: "a breeze passing through hair, eyes closed savoring the quiet moment" }
         ]
       }
     ]
   },
   healing: {
-    emoji: "🌱", zh: "治癒系", desc: "孤獨中的小小溫暖",
+    emoji: "🌱", zh: "治癒系", ja: "癒し系", desc: "孤獨中的小小溫暖",
     arcs: [
       {
-        name: "獨處時光",
+        name: "獨處時光", name_ja: "一人の時間",
         scenes: [
-          { beat: "獨自漫步", action_zh: "獨自走在無人小徑上，背包輕輕搖晃", action_en: "walking alone down an empty path, backpack gently swaying" },
-          { beat: "小小發現", action_zh: "停下腳步，蹲下觀察一隻流浪貓或一朵花", action_en: "stopping and kneeling to observe a stray cat or a single flower" },
-          { beat: "微笑遠望", action_zh: "起身輕輕微笑，眺望天邊，神情寧靜", action_en: "standing up with a soft smile, gazing toward the horizon serenely" }
+          { beat: "獨自漫步", beat_ja: "一人散歩",
+            action_zh: "獨自走在無人小徑上，背包輕輕搖晃",
+            action_ja: "誰もいない小道を一人で歩く、リュックが軽く揺れる",
+            action_en: "walking alone down an empty path, backpack gently swaying" },
+          { beat: "小小發現", beat_ja: "小さな発見",
+            action_zh: "停下腳步，蹲下觀察一隻流浪貓或一朵花",
+            action_ja: "立ち止まってしゃがみ、野良猫や小さな花をじっと見つめる",
+            action_en: "stopping and kneeling to observe a stray cat or a single flower" },
+          { beat: "微笑遠望", beat_ja: "微笑みの先",
+            action_zh: "起身輕輕微笑，眺望天邊，神情寧靜",
+            action_ja: "立ち上がって柔らかく微笑み、地平線を眺める、穏やかな表情",
+            action_en: "standing up with a soft smile, gazing toward the horizon serenely" }
         ]
       }
     ]
   },
   mystery: {
-    emoji: "🔍", zh: "懸疑推理", desc: "尋常之中的異常",
+    emoji: "🔍", zh: "懸疑推理", ja: "ミステリー", desc: "尋常之中的異常",
     arcs: [
       {
-        name: "詭異線索",
+        name: "詭異線索", name_ja: "不可解な手がかり",
         scenes: [
-          { beat: "察覺異常", action_zh: "在尋常場景中察覺某件物品不該存在於此", action_en: "noticing an object that doesn't belong in an otherwise ordinary scene" },
-          { beat: "謹慎靠近", action_zh: "小心翼翼地靠近檢視，眼神專注", action_en: "approaching cautiously to examine it, eyes narrowing in focus" },
-          { beat: "未解謎團", action_zh: "鏡頭拉遠，獨自佇立場景中，懸念未解", action_en: "camera pulling back, leaving them as a solitary figure in the scene, mystery unresolved" }
+          { beat: "察覺異常", beat_ja: "異変に気づく",
+            action_zh: "在尋常場景中察覺某件物品不該存在於此",
+            action_ja: "何気ない景色の中で、そこにあるはずのない物に気づく",
+            action_en: "noticing an object that doesn't belong in an otherwise ordinary scene" },
+          { beat: "謹慎靠近", beat_ja: "慎重に近づく",
+            action_zh: "小心翼翼地靠近檢視，眼神專注",
+            action_ja: "そっと近づいて観察する、目つきが鋭くなる",
+            action_en: "approaching cautiously to examine it, eyes narrowing in focus" },
+          { beat: "未解謎團", beat_ja: "未解決の謎",
+            action_zh: "鏡頭拉遠，獨自佇立場景中，懸念未解",
+            action_ja: "カメラが引いていき、一人立ち尽くす姿、謎は解けないまま",
+            action_en: "camera pulling back, leaving them as a solitary figure in the scene, mystery unresolved" }
         ]
       }
     ]
   },
   isekai: {
-    emoji: "✨", zh: "異世界", desc: "穿越到另一個世界",
+    emoji: "✨", zh: "異世界", ja: "異世界", desc: "穿越到另一個世界",
     arcs: [
       {
-        name: "穿越時刻",
+        name: "穿越時刻", name_ja: "転移の瞬間",
         scenes: [
-          { beat: "尋常日子", action_zh: "正在日常活動中（通勤、寫作業、發呆）", action_en: "in the middle of an ordinary activity like commuting, doing homework, or daydreaming" },
-          { beat: "光芒包圍", action_zh: "強光突然包圍全身，環境開始扭曲變形", action_en: "blinding light suddenly enveloping them as the environment warps and distorts" },
-          { beat: "新世界", action_zh: "張開眼睛，發現自己身處奇幻新世界，神情驚訝", action_en: "opening their eyes to find themselves in a strange fantasy world, expression of awe" }
+          { beat: "尋常日子", beat_ja: "ありふれた日常",
+            action_zh: "正在日常活動中（通勤、寫作業、發呆）",
+            action_ja: "通勤や宿題、ぼんやりするなど、ありふれた日常の中にいる",
+            action_en: "in the middle of an ordinary activity like commuting, doing homework, or daydreaming" },
+          { beat: "光芒包圍", beat_ja: "光に包まれる",
+            action_zh: "強光突然包圍全身，環境開始扭曲變形",
+            action_ja: "突然眩い光に包まれ、周囲が歪み変形していく",
+            action_en: "blinding light suddenly enveloping them as the environment warps and distorts" },
+          { beat: "新世界", beat_ja: "新たな世界",
+            action_zh: "張開眼睛，發現自己身處奇幻新世界，神情驚訝",
+            action_ja: "目を開けると、見知らぬファンタジーの世界に立っている、驚きの表情",
+            action_en: "opening their eyes to find themselves in a strange fantasy world, expression of awe" }
         ]
       }
     ]
   },
   sports: {
-    emoji: "⚽", zh: "運動青春", desc: "汗水與勝利的瞬間",
+    emoji: "⚽", zh: "運動青春", ja: "スポーツ青春", desc: "汗水與勝利的瞬間",
     arcs: [
       {
-        name: "關鍵一擊",
+        name: "關鍵一擊", name_ja: "決定的瞬間",
         scenes: [
-          { beat: "默默練習", action_zh: "獨自在場上重複練習，汗水滴落", action_en: "practicing alone repeatedly, sweat dripping down" },
-          { beat: "比賽時刻", action_zh: "比賽進入最後關鍵時刻，全神貫注地準備出擊", action_en: "the crucial final moment of the match, fully focused and ready to make the play" },
-          { beat: "勝利歡呼", action_zh: "成功完成關鍵動作，隊友圍上來歡呼擁抱", action_en: "successfully nailing the key play as teammates rush in cheering and embracing" }
+          { beat: "默默練習", beat_ja: "黙々と練習",
+            action_zh: "獨自在場上重複練習，汗水滴落",
+            action_ja: "一人グラウンドで黙々と練習を繰り返す、汗が滴り落ちる",
+            action_en: "practicing alone repeatedly, sweat dripping down" },
+          { beat: "比賽時刻", beat_ja: "試合の瞬間",
+            action_zh: "比賽進入最後關鍵時刻，全神貫注地準備出擊",
+            action_ja: "試合最後の決定的瞬間、全神経を集中させて構える",
+            action_en: "the crucial final moment of the match, fully focused and ready to make the play" },
+          { beat: "勝利歡呼", beat_ja: "勝利の歓声",
+            action_zh: "成功完成關鍵動作，隊友圍上來歡呼擁抱",
+            action_ja: "決定打を放ち、チームメイトが駆け寄って歓声を上げ抱き合う",
+            action_en: "successfully nailing the key play as teammates rush in cheering and embracing" }
         ]
       }
     ]
   },
   yokai: {
-    emoji: "👹", zh: "妖怪傳說", desc: "夜路與超自然相遇",
+    emoji: "👹", zh: "妖怪傳說", ja: "妖怪譚", desc: "夜路與超自然相遇",
     arcs: [
       {
-        name: "夜遇異物",
+        name: "夜遇異物", name_ja: "夜の遭遇",
         scenes: [
-          { beat: "夜路獨行", action_zh: "夜晚獨自走過古老鳥居或山林小徑，紙燈籠輕搖", action_en: "walking alone at night past an old torii gate, with paper lanterns gently swaying" },
-          { beat: "妖怪現身", action_zh: "突然在角落瞥見模糊的妖怪身影，心跳加速", action_en: "suddenly glimpsing a blurred yokai silhouette in the corner of the eye, heartbeat quickening" },
-          { beat: "微笑或威嚇", action_zh: "妖怪緩緩轉身，對著主角神秘地微笑", action_en: "the yokai slowly turning, offering a mysterious smile" }
+          { beat: "夜路獨行", beat_ja: "夜道を独り歩く",
+            action_zh: "夜晚獨自走過古老鳥居或山林小徑，紙燈籠輕搖",
+            action_ja: "夜、古い鳥居や山道を一人歩く、提灯がそよ風に揺れる",
+            action_en: "walking alone at night past an old torii gate, with paper lanterns gently swaying" },
+          { beat: "妖怪現身", beat_ja: "妖怪現る",
+            action_zh: "突然在角落瞥見模糊的妖怪身影，心跳加速",
+            action_ja: "ふと視界の隅にぼんやりとした妖怪の影が見える、鼓動が早まる",
+            action_en: "suddenly glimpsing a blurred yokai silhouette in the corner of the eye, heartbeat quickening" },
+          { beat: "微笑或威嚇", beat_ja: "妖の微笑",
+            action_zh: "妖怪緩緩轉身，對著主角神秘地微笑",
+            action_ja: "妖怪がゆっくり振り返り、主人公に向かって妖しく微笑む",
+            action_en: "the yokai slowly turning, offering a mysterious smile" }
         ]
       }
     ]
   },
   cyberpunk: {
-    emoji: "💾", zh: "賽博龐克", desc: "霓虹未來城市",
+    emoji: "💾", zh: "賽博龐克", ja: "サイバーパンク", desc: "霓虹未來城市",
     arcs: [
       {
-        name: "霓虹之夜",
+        name: "霓虹之夜", name_ja: "ネオンの夜",
         scenes: [
-          { beat: "雨夜街頭", action_zh: "站在霓虹燈下、雨水反射招牌光芒的街道", action_en: "standing on a rain-soaked street reflecting glowing neon signs" },
-          { beat: "科技異象", action_zh: "突然出現全息廣告或機械生物經過，引起注意", action_en: "a holographic ad suddenly materializes or a mechanical creature passes by, catching attention" },
-          { beat: "融入夜色", action_zh: "轉身走入巷弄，背影融入未來城市的霓虹中", action_en: "turning to walk into an alley, silhouette dissolving into the neon-lit future city" }
+          { beat: "雨夜街頭", beat_ja: "雨の夜の街",
+            action_zh: "站在霓虹燈下、雨水反射招牌光芒的街道",
+            action_ja: "雨に濡れた街角に立ち、ネオン看板の光が水面に映る",
+            action_en: "standing on a rain-soaked street reflecting glowing neon signs" },
+          { beat: "科技異象", beat_ja: "未来の異物",
+            action_zh: "突然出現全息廣告或機械生物經過，引起注意",
+            action_ja: "突然ホログラム広告が現れたり、機械生物が通り過ぎ、視線を奪う",
+            action_en: "a holographic ad suddenly materializes or a mechanical creature passes by, catching attention" },
+          { beat: "融入夜色", beat_ja: "夜に溶ける",
+            action_zh: "轉身走入巷弄，背影融入未來城市的霓虹中",
+            action_ja: "路地に向かって歩き出し、その背中が未来都市のネオンに溶け込んでいく",
+            action_en: "turning to walk into an alley, silhouette dissolving into the neon-lit future city" }
         ]
       }
     ]
@@ -1106,33 +1245,33 @@ const GENRES = {
 
 // ===== 鏡頭、光線、情緒翻譯表 =====
 const FRAMING = {
-  closeup:   { zh: "特寫", en: "close-up shot" },
-  medium:    { zh: "中景", en: "medium shot" },
-  wide:      { zh: "廣角", en: "wide-angle shot" },
-  lowangle:  { zh: "仰角", en: "low-angle shot" },
-  highangle: { zh: "俯角", en: "high-angle shot" },
-  dolly:     { zh: "推軌", en: "dolly push-in" },
-  tracking:  { zh: "跟拍", en: "tracking shot" },
-  static:    { zh: "定鏡", en: "static frame" }
+  closeup:   { zh: "特寫", ja: "クローズアップ", en: "close-up shot" },
+  medium:    { zh: "中景", ja: "ミディアムショット", en: "medium shot" },
+  wide:      { zh: "廣角", ja: "ワイドショット", en: "wide-angle shot" },
+  lowangle:  { zh: "仰角", ja: "ローアングル", en: "low-angle shot" },
+  highangle: { zh: "俯角", ja: "ハイアングル", en: "high-angle shot" },
+  dolly:     { zh: "推軌", ja: "ドリーイン", en: "dolly push-in" },
+  tracking:  { zh: "跟拍", ja: "トラッキングショット", en: "tracking shot" },
+  static:    { zh: "定鏡", ja: "固定フレーム", en: "static frame" }
 };
 const LIGHTING = {
-  golden:    { zh: "黃金時刻光", en: "golden hour lighting" },
-  soft:      { zh: "柔和自然光", en: "soft natural daylight" },
-  dusk:      { zh: "黃昏夕照", en: "dusk twilight lighting" },
-  night:     { zh: "月光夜色", en: "moonlit night lighting" },
-  neon:      { zh: "霓虹反光", en: "neon glow lighting" },
-  overcast:  { zh: "陰天柔光", en: "soft overcast lighting" },
-  dramatic:  { zh: "戲劇高反差光", en: "dramatic high-contrast lighting" }
+  golden:    { zh: "黃金時刻光", ja: "ゴールデンアワーの光", en: "golden hour lighting" },
+  soft:      { zh: "柔和自然光", ja: "柔らかな自然光", en: "soft natural daylight" },
+  dusk:      { zh: "黃昏夕照", ja: "夕暮れの光", en: "dusk twilight lighting" },
+  night:     { zh: "月光夜色", ja: "月明かりの夜", en: "moonlit night lighting" },
+  neon:      { zh: "霓虹反光", ja: "ネオンの輝き", en: "neon glow lighting" },
+  overcast:  { zh: "陰天柔光", ja: "曇り空の柔光", en: "soft overcast lighting" },
+  dramatic:  { zh: "戲劇高反差光", ja: "ドラマチックな高コントラスト照明", en: "dramatic high-contrast lighting" }
 };
 const MOODS = {
-  nostalgic:    { zh: "懷舊氛圍", en: "nostalgic mood" },
-  melancholic:  { zh: "略帶哀愁", en: "melancholic atmosphere" },
-  hopeful:      { zh: "充滿希望", en: "hopeful tone" },
-  energetic:    { zh: "青春熱血", en: "energetic vibrant feel" },
-  serene:       { zh: "寧靜氛圍", en: "serene tranquil mood" },
-  mysterious:   { zh: "神秘感", en: "mysterious atmosphere" },
-  romantic:     { zh: "浪漫氛圍", en: "romantic mood" },
-  tense:        { zh: "緊張氣氛", en: "tense atmosphere" }
+  nostalgic:    { zh: "懷舊氛圍", ja: "ノスタルジックな雰囲気", en: "nostalgic mood" },
+  melancholic:  { zh: "略帶哀愁", ja: "哀愁漂う", en: "melancholic atmosphere" },
+  hopeful:      { zh: "充滿希望", ja: "希望に満ちた", en: "hopeful tone" },
+  energetic:    { zh: "青春熱血", ja: "エネルギッシュで熱い", en: "energetic vibrant feel" },
+  serene:       { zh: "寧靜氛圍", ja: "静謐な", en: "serene tranquil mood" },
+  mysterious:   { zh: "神秘感", ja: "神秘的な", en: "mysterious atmosphere" },
+  romantic:     { zh: "浪漫氛圍", ja: "ロマンチックな", en: "romantic mood" },
+  tense:        { zh: "緊張氣氛", ja: "緊張感のある", en: "tense atmosphere" }
 };
 
 // ===== State =====
@@ -1226,14 +1365,16 @@ function pickArc(genre) {
   return arcs[selected.currentArc % arcs.length];
 }
 
-function buildPrompt(style, location, season, scene, framing, lighting, mood, duration, charDescZh, charDescEn) {
-  const charZh = charDescZh || "一位主角";
-  const charEn = charDescEn || "a protagonist";
+function buildPrompt(style, location, season, scene, framing, lighting, mood, duration, charDesc) {
+  const charZh = charDesc || "一位主角";
+  const charJa = charDesc || "主人公";
+  const charEn = charDesc || "a protagonist";
 
   const promptZh = `${style.zh}風格，${framing.zh}鏡頭，${charZh}在${location.zh}${scene.action_zh}，${season.elements_zh}，${lighting.zh}，${mood.zh}，${duration} 秒。`;
+  const promptJa = `${style.ja}、${framing.ja}、${charJa}が${location.ja}で${scene.action_ja}、${season.elements_ja}、${lighting.ja}、${mood.ja}、${duration}秒。`;
   const promptEn = `${style.en}, ${framing.en} of ${charEn} ${scene.action_en} in ${location.en}, with ${season.elements_en}, ${lighting.en}, ${mood.en}, ${duration} seconds.`;
 
-  return { zh: promptZh, en: promptEn };
+  return { zh: promptZh, ja: promptJa, en: promptEn };
 }
 
 function generate() {
@@ -1247,8 +1388,6 @@ function generate() {
   const mood = MOODS[document.getElementById('mood').value];
   const duration = document.getElementById('duration').value;
   const charDesc = document.getElementById('characterInput').value.trim();
-  const charDescZh = charDesc;
-  const charDescEn = charDesc; // 用同樣描述（中文敘述對 Omni 也可），實際上 Omni 接受中英混合
 
   // Summary
   document.getElementById('storySummary').innerHTML = `
@@ -1281,7 +1420,7 @@ function generate() {
   const container = document.getElementById('promptsContainer');
   container.innerHTML = '';
   arc.scenes.forEach((scene, idx) => {
-    const prompts = buildPrompt(style, location, season, scene, framing, lighting, mood, duration, charDescZh, charDescEn);
+    const prompts = buildPrompt(style, location, season, scene, framing, lighting, mood, duration, charDesc);
 
     const card = document.createElement('div');
     card.className = 'prompt-card';
@@ -1294,9 +1433,11 @@ function generate() {
       <div class="prompt-body">
         <div class="prompt-lang-tabs">
           <button class="lang-tab active" data-lang="zh">繁體中文</button>
-          <button class="lang-tab" data-lang="en">English（推薦）</button>
+          <button class="lang-tab lang-tab-hot" data-lang="ja">🇯🇵 日本語</button>
+          <button class="lang-tab" data-lang="en">English</button>
         </div>
         <div class="prompt-text" data-lang="zh">${prompts.zh}</div>
+        <div class="prompt-text hidden" data-lang="ja">${prompts.ja}</div>
         <div class="prompt-text hidden" data-lang="en">${prompts.en}</div>
         <div class="prompt-actions">
           <button class="btn-copy">📋 複製這一幕</button>
@@ -1373,11 +1514,15 @@ document.getElementById('downloadBtn').addEventListener('click', () => {
   document.querySelectorAll('.prompt-card').forEach((card, i) => {
     const beat = card.querySelector('.scene-beat').textContent;
     const zh = card.querySelector('.prompt-text[data-lang="zh"]').textContent;
+    const ja = card.querySelector('.prompt-text[data-lang="ja"]').textContent;
     const en = card.querySelector('.prompt-text[data-lang="en"]').textContent;
     lines.push(`## 第 ${i+1} 幕：${beat}`);
     lines.push('');
     lines.push('【繁體中文】');
     lines.push(zh);
+    lines.push('');
+    lines.push('【日本語】');
+    lines.push(ja);
     lines.push('');
     lines.push('【English】');
     lines.push(en);
