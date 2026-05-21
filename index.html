@@ -653,6 +653,150 @@
     background: linear-gradient(90deg, var(--sakura), var(--accent));
   }
 
+  /* ===== Storyboard Section ===== */
+  .storyboard-divider {
+    margin: 36px 0 20px;
+    text-align: center;
+    position: relative;
+  }
+  .storyboard-divider::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--sakura-deep), var(--gold-deep), var(--sakura-deep), transparent);
+  }
+  .storyboard-divider span {
+    background: var(--bg);
+    padding: 0 18px;
+    color: var(--accent-dark);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    position: relative;
+  }
+
+  .storyboard-section {
+    background: linear-gradient(135deg, #FFF9F5 0%, #FFFBF0 50%, #FFF5F7 100%);
+    border-radius: 18px;
+    padding: 28px;
+    margin-bottom: 20px;
+    border: 1px solid #FFE5D9;
+  }
+  .storyboard-header {
+    margin-bottom: 20px;
+  }
+  .storyboard-header h3 {
+    font-size: 19px;
+    color: var(--accent-dark);
+    margin-bottom: 8px;
+    font-weight: 700;
+  }
+  .storyboard-header p {
+    font-size: 13px;
+    color: var(--gray);
+    line-height: 1.6;
+  }
+
+  .sb-card {
+    background: white;
+    border-radius: 12px;
+    margin-bottom: 14px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    transition: box-shadow 0.2s;
+  }
+  .sb-card:hover {
+    box-shadow: 0 4px 14px rgba(255, 143, 168, 0.15);
+  }
+  .sb-card-header {
+    background: linear-gradient(135deg, var(--sakura) 0%, var(--gold) 100%);
+    padding: 12px 18px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .sb-icon {
+    font-size: 24px;
+  }
+  .sb-title-block {
+    flex: 1;
+    min-width: 200px;
+  }
+  .sb-title {
+    font-weight: 700;
+    color: var(--primary-dark);
+    font-size: 15px;
+  }
+  .sb-subtitle {
+    font-size: 11.5px;
+    color: var(--primary);
+    margin-top: 2px;
+  }
+  .sb-step-num {
+    background: var(--primary-dark);
+    color: white;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+  .sb-body {
+    padding: 16px 18px;
+  }
+
+  /* ===== Workflow Guide ===== */
+  .workflow-guide {
+    background: var(--primary);
+    color: white;
+    border-radius: 12px;
+    padding: 20px 22px;
+    margin-top: 16px;
+  }
+  .workflow-guide h4 {
+    font-size: 14px;
+    margin-bottom: 12px;
+    color: var(--gold);
+    font-weight: 700;
+  }
+  .workflow-guide ol {
+    list-style: none;
+    counter-reset: workflow;
+    padding: 0;
+  }
+  .workflow-guide ol li {
+    counter-increment: workflow;
+    position: relative;
+    padding-left: 36px;
+    margin-bottom: 10px;
+    font-size: 13px;
+    line-height: 1.55;
+    color: rgba(255,255,255,0.92);
+  }
+  .workflow-guide ol li::before {
+    content: counter(workflow);
+    position: absolute;
+    left: 0;
+    top: 0;
+    background: var(--gold);
+    color: var(--primary-dark);
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 12px;
+  }
+  .workflow-guide ol li strong {
+    color: white;
+  }
+
   /* ===== Follow-up ===== */
   .followup {
     background: linear-gradient(135deg, #FFF5F7 0%, #FFFBF0 100%);
@@ -1377,6 +1521,96 @@ function buildPrompt(style, location, season, scene, framing, lighting, mood, du
   return { zh: promptZh, ja: promptJa, en: promptEn };
 }
 
+// ===== 分鏡腳本參考圖（用於畫面一致性）=====
+function buildStoryboardPrompts(style, location, season, arc, lighting, mood, charDesc) {
+  const charZh = charDesc || "主角";
+  const charJa = charDesc || "主人公";
+  const charEn = charDesc || "the protagonist";
+  const s1 = arc.scenes[0], s2 = arc.scenes[1], s3 = arc.scenes[2];
+
+  // ── A. 角色設定圖 ──
+  const charSheet = {
+    zh: `${style.zh}風格的「角色設定圖」(character reference sheet)。畫面中呈現「${charZh}」的三個全身視角：正面、側面、3/4 角度，加上右上角一個面部表情特寫。白色或淺灰背景、中性站姿，三個視角必須是完全同一個角色（同樣服裝、髮型、配件、五官比例）。乾淨線稿、設定資料的繪畫風格。這張圖會作為後續所有分鏡的角色參考。`,
+    ja: `${style.ja}の「キャラクター設定資料」(character model sheet)。「${charJa}」の3つの全身視点を1枚に：正面・横顔・斜め45度。右上に表情のクローズアップを追加。白または淡灰の背景、ニュートラルポーズ、3視点で完全に同一キャラクター（同じ衣装、髪型、装飾、顔の比率）。クリーンな線画、設定資料風の作画。後続の全コマで参照される。`,
+    en: `${style.en} "character reference sheet" for ${charEn}. One image showing three full-body views: front, side profile, and 3/4 angle, with one facial expression close-up in the upper right corner. White or light gray background, neutral pose, identical character across all views (same outfit, hairstyle, accessories, facial proportions). Clean line art in design-document style. This sheet will serve as the character anchor for all subsequent panels.`
+  };
+
+  // ── B. 三幕分鏡稿 ──
+  const storyboard = {
+    zh: `${style.zh}風格的「三幕漫畫分鏡稿」(3-panel manga storyboard sheet)。畫面為三格構圖（縱排或橫向 3x1 網格），每格邊框清晰，三格之間使用完全相同的角色設計、色調、繪畫風格。場景設定於${location.zh}，${season.elements_zh}。
+第 1 格：${charZh}${s1.action_zh}。
+第 2 格：${charZh}${s2.action_zh}。
+第 3 格：${charZh}${s3.action_zh}。
+${lighting.zh}、${mood.zh}。漫畫分鏡稿風格，格線與留白清晰可見。`,
+    ja: `${style.ja}の「3コマ漫画コンテシート」(3-panel manga storyboard)。縦並びまたは横3コマグリッド、各コマに明確な枠線。3コマ全てで同じキャラデザ・色調・画風を完全統一。舞台は${location.ja}、${season.elements_ja}。
+1コマ目：${charJa}が${s1.action_ja}。
+2コマ目：${charJa}が${s2.action_ja}。
+3コマ目：${charJa}が${s3.action_ja}。
+${lighting.ja}、${mood.ja}。漫画コンテ調、コマ枠と余白がはっきり見える。`,
+    en: `${style.en} "3-panel manga storyboard sheet". Composition is three panels in vertical stack or 3x1 horizontal grid, each clearly framed, all three sharing identical character design, color palette, and art style. Setting: ${location.en}, with ${season.elements_en}.
+Panel 1: ${charEn} ${s1.action_en}.
+Panel 2: ${charEn} ${s2.action_en}.
+Panel 3: ${charEn} ${s3.action_en}.
+${lighting.en}, ${mood.en}. Manga storyboard look with visible panel borders and gutters.`
+  };
+
+  // ── C. 關鍵視覺 ──
+  const keyVisual = {
+    zh: `${style.zh}風格的「關鍵視覺圖」(key visual / 主視覺海報)。${charZh}佇立在${location.zh}的標誌性位置，${season.elements_zh}。${lighting.zh}，${mood.zh}。英雄構圖、單張畫面建立整個故事的視覺基調，電影級取景，極致細節，完成度極高的成品畫面。`,
+    ja: `${style.ja}の「キービジュアル / メインビジュアル」。${charJa}が${location.ja}の象徴的な場所に佇む、${season.elements_ja}。${lighting.ja}、${mood.ja}。ヒーロー構図、一枚で物語全体のビジュアル基調を確立、映画的フレーミング、極めて高精細、完成度の高い仕上がり。`,
+    en: `${style.en} "key visual / promotional anime art". ${charEn} standing at an iconic spot in ${location.en}, with ${season.elements_en}. ${lighting.en}, ${mood.en}. Hero composition, a single image establishing the entire visual tone of the story. Cinematic framing, ultra-high detail, polished final artwork.`
+  };
+
+  return { charSheet, storyboard, keyVisual };
+}
+
+// 渲染一張分鏡腳本卡（共用）
+function renderSbCard(icon, title, subtitle, stepLabel, prompts) {
+  const card = document.createElement('div');
+  card.className = 'sb-card';
+  card.innerHTML = `
+    <div class="sb-card-header">
+      <span class="sb-icon">${icon}</span>
+      <div class="sb-title-block">
+        <div class="sb-title">${title}</div>
+        <div class="sb-subtitle">${subtitle}</div>
+      </div>
+      <div class="sb-step-num">${stepLabel}</div>
+    </div>
+    <div class="sb-body">
+      <div class="prompt-lang-tabs">
+        <button class="lang-tab active" data-lang="zh">繁體中文</button>
+        <button class="lang-tab lang-tab-hot" data-lang="ja">🇯🇵 日本語</button>
+        <button class="lang-tab" data-lang="en">English</button>
+      </div>
+      <div class="prompt-text" data-lang="zh">${prompts.zh}</div>
+      <div class="prompt-text hidden" data-lang="ja">${prompts.ja}</div>
+      <div class="prompt-text hidden" data-lang="en">${prompts.en}</div>
+      <div class="prompt-actions">
+        <button class="btn-copy">📋 複製這段提示詞</button>
+      </div>
+    </div>
+  `;
+  // Lang tabs
+  const tabs = card.querySelectorAll('.lang-tab');
+  const texts = card.querySelectorAll('.prompt-text');
+  tabs.forEach(tab => tab.addEventListener('click', () => {
+    tabs.forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    texts.forEach(t => t.classList.toggle('hidden', t.dataset.lang !== tab.dataset.lang));
+  }));
+  // Copy
+  const btn = card.querySelector('.btn-copy');
+  btn.addEventListener('click', () => {
+    const lang = card.querySelector('.lang-tab.active').dataset.lang;
+    copy(card.querySelector(`.prompt-text[data-lang="${lang}"]`).textContent);
+    btn.textContent = '✓ 已複製';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = '📋 複製這段提示詞'; btn.classList.remove('copied'); }, 1500);
+  });
+  return card;
+}
+
 function generate() {
   const style = STYLES[selected.style];
   const location = LOCATIONS[selected.location];
@@ -1469,6 +1703,44 @@ function generate() {
     container.appendChild(card);
   });
 
+  // === 分鏡腳本參考圖區塊 ===
+  const sbDivider = document.createElement('div');
+  sbDivider.className = 'storyboard-divider';
+  sbDivider.innerHTML = '<span>STORYBOARD REFERENCE</span>';
+  container.appendChild(sbDivider);
+
+  const sbSection = document.createElement('div');
+  sbSection.className = 'storyboard-section';
+  sbSection.innerHTML = `
+    <div class="storyboard-header">
+      <h3>🎬 畫面一致性工具：分鏡腳本參考圖</h3>
+      <p>用下列三組提示詞先在 <strong>Gemini Imagen / Midjourney</strong> 生成「角色設定圖」「三幕分鏡稿」「關鍵視覺」三張參考圖，再進到 Omni 用 <strong>image-to-video</strong> 模式上傳參考，這樣每一幕的角色、服裝、風格才會一致。</p>
+    </div>
+  `;
+
+  const sbPrompts = buildStoryboardPrompts(style, location, season, arc, lighting, mood, charDesc);
+  sbSection.appendChild(renderSbCard("🎭", "A. 角色設定圖", "三視角全身 + 表情特寫，鎖定角色設計", "Step 1", sbPrompts.charSheet));
+  sbSection.appendChild(renderSbCard("📐", "B. 三幕分鏡稿", "一張圖同時呈現三幕，鎖定故事與風格一致性", "Step 2", sbPrompts.storyboard));
+  sbSection.appendChild(renderSbCard("✨", "C. 關鍵視覺", "海報級主視覺，建立整個故事的氛圍基調", "Optional", sbPrompts.keyVisual));
+
+  // 工作流引導
+  const wf = document.createElement('div');
+  wf.className = 'workflow-guide';
+  wf.innerHTML = `
+    <h4>🚀 推薦工作流（從靜態圖到一致動畫）</h4>
+    <ol>
+      <li><strong>生角色：</strong>把 A「角色設定圖」貼到 Gemini Imagen / Midjourney / 即夢，生成角色基準圖並保存</li>
+      <li><strong>生分鏡：</strong>用 B「三幕分鏡稿」生成完整三幕參考圖（也可加上 A 當參考來鎖角色）</li>
+      <li><strong>進 Omni：</strong>開啟 Gemini Omni 或 Luma，切到 <strong>Image-to-Video</strong> 模式</li>
+      <li><strong>上傳第 1 格：</strong>上傳分鏡圖的第 1 格 + 第 1 幕的影片提示詞</li>
+      <li><strong>對話迭代：</strong>「保持同樣角色與風格，現在進入第 2 幕」並貼上第 2 幕提示詞，第 3 幕同上</li>
+      <li><strong>最終串接：</strong>用 Canva / CapCut 把三段影片串成完整短片</li>
+    </ol>
+  `;
+  sbSection.appendChild(wf);
+
+  container.appendChild(sbSection);
+
   // Followup
   const followup = document.createElement('div');
   followup.className = 'followup';
@@ -1528,6 +1800,36 @@ document.getElementById('downloadBtn').addEventListener('click', () => {
     lines.push(en);
     lines.push('');
   });
+
+  // 加上分鏡腳本參考圖區塊
+  const sbCards = document.querySelectorAll('.sb-card');
+  if (sbCards.length) {
+    lines.push('');
+    lines.push('===============================');
+    lines.push('# 分鏡腳本參考圖（用於畫面一致性）');
+    lines.push('===============================');
+    lines.push('');
+    sbCards.forEach(card => {
+      const title = card.querySelector('.sb-title').textContent;
+      const subtitle = card.querySelector('.sb-subtitle').textContent;
+      const step = card.querySelector('.sb-step-num').textContent;
+      const zh = card.querySelector('.prompt-text[data-lang="zh"]').textContent;
+      const ja = card.querySelector('.prompt-text[data-lang="ja"]').textContent;
+      const en = card.querySelector('.prompt-text[data-lang="en"]').textContent;
+      lines.push(`## [${step}] ${title}`);
+      lines.push(`> ${subtitle}`);
+      lines.push('');
+      lines.push('【繁體中文】');
+      lines.push(zh);
+      lines.push('');
+      lines.push('【日本語】');
+      lines.push(ja);
+      lines.push('');
+      lines.push('【English】');
+      lines.push(en);
+      lines.push('');
+    });
+  }
   const blob = new Blob([lines.join('\n')], { type: 'text/plain;charset=utf-8' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
