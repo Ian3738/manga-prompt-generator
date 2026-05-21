@@ -1554,11 +1554,73 @@ function buildStoryboardPrompts(style, location, season, arc, lighting, mood, ch
   const charEn = charDesc || "the protagonist";
   const s1 = arc.scenes[0], s2 = arc.scenes[1], s3 = arc.scenes[2];
 
-  // ── A. 角色設定圖 ──
+  // ── A. 角色設計圖（標準角色設定資料規格）──
   const charSheet = {
-    zh: `${style.zh}風格的「角色設定圖」(character reference sheet)。畫面中呈現「${charZh}」的三個全身視角：正面、側面、3/4 角度，加上右上角一個面部表情特寫。白色或淺灰背景、中性站姿，三個視角必須是完全同一個角色（同樣服裝、髮型、配件、五官比例）。乾淨線稿、設定資料的繪畫風格。這張圖會作為後續所有分鏡的角色參考。`,
-    ja: `${style.ja}の「キャラクター設定資料」(character model sheet)。「${charJa}」の3つの全身視点を1枚に：正面・横顔・斜め45度。右上に表情のクローズアップを追加。白または淡灰の背景、ニュートラルポーズ、3視点で完全に同一キャラクター（同じ衣装、髪型、装飾、顔の比率）。クリーンな線画、設定資料風の作画。後続の全コマで参照される。`,
-    en: `${style.en} "character reference sheet" for ${charEn}. One image showing three full-body views: front, side profile, and 3/4 angle, with one facial expression close-up in the upper right corner. White or light gray background, neutral pose, identical character across all views (same outfit, hairstyle, accessories, facial proportions). Clean line art in design-document style. This sheet will serve as the character anchor for all subsequent panels.`
+    zh: `${style.zh}風格的「角色設計圖」(character design sheet / character model sheet)。整張圖為單一張設計文件，純白色背景 (#FFFFFF)，分為上下兩個區塊。
+
+【角色】${charZh}
+
+【上半部 — 全身視角區】呈現角色的 4 個不同角度全身像，由左至右橫排：
+① 正面站立（中性站姿）
+② 3/4 側面（向左轉 45 度）
+③ 完全側面（右側面剪影）
+④ 背面（看到髮型與服裝背後細節）
+四個視角必須是完全同一個角色 — 同樣的服裝、髮型、配件、體型比例、五官結構。
+
+【下半部 — 表情特寫區】呈現角色臉部的 4 種不同表情特寫，由左至右橫排：
+① 平靜中性
+② 微笑（開心、放鬆）
+③ 驚訝（眼睛睜大）
+④ 憂愁（沉思、若有所思）
+四個表情特寫必須是同一張臉，只有情緒不同。
+
+【繪畫風格】乾淨清晰的線稿，平塗或柔和上色，呈現專業「角色設定資料」的設計文件質感。所有元素清楚分區，純白背景貫穿整張圖。
+
+這張圖將作為後續所有分鏡、所有影片生成的角色參考基準。`,
+
+    ja: `${style.ja}の「キャラクター設計シート / キャラクターモデルシート」(character model sheet)。一枚絵として完成し、背景は純白 (#FFFFFF)。上下2セクションに分かれる構成。
+
+【キャラクター】${charJa}
+
+【上段 — 全身ビュー】キャラクターの全身を4つの異なる角度から、左から右に横並びで：
+① 正面立ち姿（ニュートラルポーズ）
+② 斜め45度（左に向ける）
+③ 完全な横顔（右側面のシルエット）
+④ 背面（髪型と衣装の背中側のディテールが見える）
+4視点で完全に同一キャラクター — 同じ衣装、髪型、装飾、体型比率、顔のパーツ配置。
+
+【下段 — 表情クローズアップ】キャラクターの顔を4つの異なる表情で、左から右に横並びで：
+① 落ち着いた無表情
+② 笑顔（嬉しい、リラックス）
+③ 驚き（目を見開く）
+④ 憂い（物思いにふける）
+4つの表情は同じ顔で、感情だけが異なる。
+
+【作画スタイル】クリーンな線画、フラットまたは柔らかい彩色、プロの「キャラクター設定資料」風の仕上がり。全要素が明確に区分けされ、純白背景が全体を貫く。
+
+この一枚は、後続の全コマと動画生成における基準資料として参照される。`,
+
+    en: `${style.en} "character design sheet / character model sheet" presented as a single design document on a pure white background (#FFFFFF). The image is divided into two horizontal sections.
+
+[CHARACTER] ${charEn}
+
+[TOP SECTION — Full-Body Views] Show the character from 4 different angles, arranged left to right:
+① Front view (neutral standing pose)
+② 3/4 view (turned 45° to the left)
+③ Side profile (right side silhouette)
+④ Back view (showing hairstyle and back details of the outfit)
+All four views must depict the IDENTICAL character — same outfit, hairstyle, accessories, body proportions, and facial structure.
+
+[BOTTOM SECTION — Facial Expression Close-ups] Show the character's face in close-up with 4 different expressions, arranged left to right:
+① Neutral, resting expression
+② Smiling (happy, relaxed)
+③ Surprised (eyes wide open)
+④ Melancholic (contemplative, thoughtful)
+All four expressions must be the same face, only the emotion differs.
+
+[Art style] Clean line art with flat or soft coloring, professional "character design document" aesthetic. All elements clearly separated. Pure white background throughout the entire image.
+
+This single sheet serves as the reference baseline for all subsequent storyboard panels and video generations.`
   };
 
   // ── B. 6 格詳細分鏡稿 ──
@@ -1776,12 +1838,12 @@ function generate() {
   sbSection.innerHTML = `
     <div class="storyboard-header">
       <h3>🎬 畫面一致性工具：分鏡腳本參考圖</h3>
-      <p>用下列三組提示詞先在 <strong>Gemini Imagen / Midjourney</strong> 生成「角色設定圖」「6 格詳細分鏡稿」「關鍵視覺」三張參考圖，再進到 Omni 用 <strong>image-to-video</strong> 模式上傳參考，這樣每一幕的角色、服裝、風格才會一致。<br><strong>B 是核心工具</strong> — 一張圖把整個故事拆成 6 個關鍵分鏡（2 行 × 3 列），每格有編號、標題、與完整視覺指示。</p>
+      <p>用下列三組提示詞先在 <strong>Gemini Imagen / Midjourney</strong> 生成「角色設計圖」「6 格詳細分鏡稿」「關鍵視覺」三張參考圖，再進到 Omni 用 <strong>image-to-video</strong> 模式上傳參考，這樣每一幕的角色、服裝、風格才會一致。<br><strong>A 是角色錨點</strong>（4 角度 + 4 表情，純白背景）— <strong>B 是故事分鏡</strong>（6 格 2 行 × 3 列，含編號與標題）— <strong>C 是氛圍主視覺</strong>。</p>
     </div>
   `;
 
   const sbPrompts = buildStoryboardPrompts(style, location, season, arc, lighting, mood, charDesc);
-  sbSection.appendChild(renderSbCard("🎭", "A. 角色設定圖", "三視角全身 + 表情特寫，鎖定角色設計", "Step 1", sbPrompts.charSheet));
+  sbSection.appendChild(renderSbCard("🎭", "A. 角色設計圖", "4 角度全身 + 4 種表情特寫，純白背景，鎖定角色設計", "Step 1", sbPrompts.charSheet));
   sbSection.appendChild(renderSbCard("📐", "B. 6 格詳細分鏡稿", "2 行 × 3 列，含人物動作／場景／構圖／鏡頭／光影／編號／標題", "Step 2", sbPrompts.storyboard));
   sbSection.appendChild(renderSbCard("✨", "C. 關鍵視覺", "海報級主視覺，建立整個故事的氛圍基調", "Optional", sbPrompts.keyVisual));
 
