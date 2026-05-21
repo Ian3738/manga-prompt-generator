@@ -1,0 +1,1429 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🌸 日系動畫提示詞產生器</title>
+<meta name="description" content="選擇漫畫風格、日本場景、四季與故事類型，自動生成可用於 Gemini Omni、Luma、Pika 的日系動畫影片提示詞。">
+<style>
+  :root {
+    --primary: #2C3E5C;
+    --primary-dark: #1A2540;
+    --primary-light: #5B6E91;
+    --sakura: #FFB7C5;
+    --sakura-deep: #FF8FA8;
+    --accent: #FF6B6B;
+    --accent-dark: #E04848;
+    --gold: #FFD93D;
+    --gold-deep: #E8B923;
+    --dark: #1A1F36;
+    --gray: #6B7280;
+    --gray-light: #9CA3AF;
+    --bg: #FAF9FB;
+    --bg-card: #F4F1F8;
+    --border: #E5E1EC;
+    --success: #10B981;
+    --white: #FFFFFF;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: "Hiragino Sans", "ヒラギノ角ゴシック", "PingFang TC", "Microsoft JhengHei", "Noto Sans TC", -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg);
+    color: var(--dark);
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  /* ===== Header ===== */
+  header {
+    background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 50%, var(--primary-light) 100%);
+    color: white;
+    padding: 40px 24px 56px;
+    position: relative;
+    overflow: hidden;
+  }
+  /* 装飾的な桜の円 */
+  header::before {
+    content: '';
+    position: absolute;
+    top: -80px;
+    right: -50px;
+    width: 350px;
+    height: 350px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255, 183, 197, 0.4) 0%, rgba(255, 183, 197, 0) 70%);
+  }
+  header::after {
+    content: '';
+    position: absolute;
+    bottom: -100px;
+    left: -50px;
+    width: 280px;
+    height: 280px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255, 217, 61, 0.25) 0%, rgba(255, 217, 61, 0) 70%);
+  }
+  .sakura-petal {
+    position: absolute;
+    pointer-events: none;
+    opacity: 0.5;
+  }
+  .header-content {
+    max-width: 1100px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+  }
+  .eyebrow {
+    font-size: 12px;
+    letter-spacing: 6px;
+    color: var(--sakura);
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+  h1 {
+    font-size: 36px;
+    font-weight: 800;
+    margin-bottom: 10px;
+    letter-spacing: -0.5px;
+    line-height: 1.2;
+  }
+  .subtitle {
+    font-size: 15px;
+    opacity: 0.88;
+    max-width: 680px;
+    line-height: 1.6;
+  }
+
+  /* ===== Main ===== */
+  main {
+    max-width: 1100px;
+    margin: -16px auto 60px;
+    padding: 0 24px;
+    position: relative;
+    z-index: 2;
+  }
+
+  .panel {
+    background: white;
+    border-radius: 18px;
+    padding: 28px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 14px rgba(44, 62, 92, 0.05), 0 1px 3px rgba(0, 0, 0, 0.04);
+    border: 1px solid var(--border);
+  }
+
+  .step-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+  .step-num {
+    width: 30px;
+    height: 30px;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 14px;
+  }
+  .step-title {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--primary);
+  }
+  .step-hint {
+    color: var(--gray);
+    font-size: 13px;
+    margin-left: auto;
+  }
+
+  /* ===== Style Grid ===== */
+  .style-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+    gap: 10px;
+  }
+  .style-card {
+    background: var(--bg-card);
+    border: 2px solid transparent;
+    border-radius: 12px;
+    padding: 14px 14px;
+    cursor: pointer;
+    transition: all 0.18s ease;
+    text-align: left;
+    font-family: inherit;
+    color: var(--dark);
+    position: relative;
+    overflow: hidden;
+  }
+  .style-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: var(--card-color, var(--primary));
+    opacity: 0;
+    transition: opacity 0.18s;
+  }
+  .style-card:hover {
+    background: white;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(44, 62, 92, 0.08);
+    border-color: var(--card-color, var(--primary));
+  }
+  .style-card:hover::before { opacity: 1; }
+  .style-card.active {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary);
+  }
+  .style-card.active .style-emoji {
+    filter: drop-shadow(0 0 4px rgba(255, 217, 61, 0.6));
+  }
+  .style-card.active .style-en {
+    color: rgba(255,255,255,0.75);
+  }
+  .style-emoji {
+    font-size: 22px;
+    margin-bottom: 6px;
+  }
+  .style-name {
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 2px;
+  }
+  .style-en {
+    font-size: 11px;
+    color: var(--gray);
+    font-style: italic;
+  }
+
+  /* ===== Location Grid ===== */
+  .location-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(155px, 1fr));
+    gap: 8px;
+  }
+  .location-card {
+    background: var(--bg-card);
+    border: 2px solid transparent;
+    border-radius: 10px;
+    padding: 12px 14px;
+    cursor: pointer;
+    transition: all 0.18s;
+    text-align: left;
+    font-family: inherit;
+    color: var(--dark);
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.4;
+  }
+  .location-card:hover {
+    background: white;
+    border-color: var(--sakura);
+    transform: translateY(-1px);
+  }
+  .location-card.active {
+    background: linear-gradient(135deg, var(--sakura-deep) 0%, var(--accent) 100%);
+    color: white;
+    border-color: transparent;
+  }
+
+  /* ===== Season Selector ===== */
+  .season-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-top: 16px;
+  }
+  .season-btn {
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 18px 14px;
+    cursor: pointer;
+    background: var(--bg-card);
+    font-family: inherit;
+    transition: all 0.18s;
+    text-align: center;
+  }
+  .season-btn:hover {
+    background: white;
+    transform: translateY(-2px);
+  }
+  .season-btn.active {
+    border-color: transparent;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+  }
+  .season-btn.active[data-season="spring"] { background: linear-gradient(135deg, #FFB7C5, #FF8FA8); }
+  .season-btn.active[data-season="summer"] { background: linear-gradient(135deg, #6BCEE5, #4A90E2); }
+  .season-btn.active[data-season="autumn"] { background: linear-gradient(135deg, #FF9F45, #E07B3B); }
+  .season-btn.active[data-season="winter"] { background: linear-gradient(135deg, #B5C9E0, #8AA9C7); }
+  .season-emoji {
+    font-size: 28px;
+    margin-bottom: 4px;
+    display: block;
+  }
+  .season-name {
+    font-size: 15px;
+    font-weight: 700;
+  }
+  .season-en {
+    font-size: 11px;
+    opacity: 0.7;
+    margin-top: 2px;
+    font-style: italic;
+  }
+  .season-btn.active .season-en {
+    opacity: 0.9;
+  }
+
+  /* ===== Genre Cards ===== */
+  .genre-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 10px;
+  }
+  .genre-card {
+    background: var(--bg-card);
+    border: 2px solid transparent;
+    border-radius: 12px;
+    padding: 14px 16px;
+    cursor: pointer;
+    transition: all 0.18s;
+    text-align: left;
+    font-family: inherit;
+    color: var(--dark);
+  }
+  .genre-card:hover {
+    background: white;
+    border-color: var(--accent);
+  }
+  .genre-card.active {
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%);
+    color: white;
+    border-color: transparent;
+  }
+  .genre-card.active .genre-desc {
+    color: rgba(255,255,255,0.85);
+  }
+  .genre-name {
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .genre-desc {
+    font-size: 12px;
+    color: var(--gray);
+    line-height: 1.5;
+  }
+
+  /* ===== Character Input ===== */
+  .character-input {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 16px;
+  }
+  .character-input label {
+    font-size: 13px;
+    color: var(--gray);
+    font-weight: 600;
+  }
+  .character-input input,
+  .character-input textarea {
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-family: inherit;
+    font-size: 14px;
+    background: white;
+    transition: border 0.15s;
+  }
+  .character-input input:focus,
+  .character-input textarea:focus {
+    outline: none;
+    border-color: var(--primary);
+  }
+  .character-examples {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 4px;
+  }
+  .char-example {
+    background: var(--bg-card);
+    color: var(--primary);
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 11px;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    transition: all 0.15s;
+    font-family: inherit;
+  }
+  .char-example:hover {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary);
+  }
+
+  /* ===== Params ===== */
+  .params {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    gap: 14px;
+  }
+  .param {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .param label {
+    font-size: 12px;
+    color: var(--gray);
+    font-weight: 600;
+  }
+  .param select {
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-family: inherit;
+    font-size: 13px;
+    background: white;
+    cursor: pointer;
+    transition: border 0.15s;
+  }
+  .param select:focus {
+    outline: none;
+    border-color: var(--primary);
+  }
+
+  /* ===== Generate Button ===== */
+  .generate-bar {
+    display: flex;
+    justify-content: center;
+    margin: 28px 0;
+  }
+  .btn-generate {
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 50%, var(--sakura-deep) 100%);
+    color: white;
+    border: none;
+    padding: 16px 42px;
+    border-radius: 50px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
+    transition: all 0.2s;
+    letter-spacing: 0.5px;
+  }
+  .btn-generate:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 28px rgba(255, 107, 107, 0.55);
+  }
+  .btn-generate:disabled {
+    background: var(--gray-light);
+    box-shadow: none;
+    cursor: not-allowed;
+  }
+
+  /* ===== Results ===== */
+  .results { display: none; }
+  .results.show { display: block; }
+
+  .story-summary {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+    color: white;
+    padding: 22px 26px;
+    border-radius: 14px;
+    margin-bottom: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+  .story-summary::before {
+    content: '🌸';
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 60px;
+    opacity: 0.2;
+  }
+  .story-summary h2 {
+    font-size: 20px;
+    margin-bottom: 6px;
+    position: relative;
+    z-index: 1;
+  }
+  .story-meta {
+    font-size: 13px;
+    opacity: 0.88;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    position: relative;
+    z-index: 1;
+  }
+  .meta-tag {
+    background: rgba(255,255,255,0.15);
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+  }
+
+  .prompt-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    margin-bottom: 14px;
+    overflow: hidden;
+  }
+  .prompt-header {
+    background: var(--bg-card);
+    padding: 12px 18px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+  }
+  .scene-num {
+    background: linear-gradient(135deg, var(--accent), var(--sakura-deep));
+    color: white;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 13px;
+  }
+  .scene-title {
+    font-weight: 700;
+    color: var(--primary);
+    font-size: 15px;
+    flex: 1;
+  }
+  .scene-beat {
+    background: var(--gold);
+    color: var(--dark);
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 700;
+  }
+
+  .prompt-body {
+    padding: 18px;
+  }
+  .prompt-lang-tabs {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 12px;
+  }
+  .lang-tab {
+    background: var(--bg-card);
+    border: none;
+    padding: 6px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--gray);
+    transition: all 0.15s;
+  }
+  .lang-tab.active {
+    background: var(--primary);
+    color: white;
+  }
+
+  .prompt-text {
+    background: #FBFAFC;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    font-size: 13.5px;
+    line-height: 1.75;
+    color: var(--dark);
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Consolas, monospace;
+    min-height: 60px;
+  }
+  .prompt-text.hidden { display: none; }
+
+  .prompt-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+  }
+  .btn-copy {
+    background: var(--primary);
+    color: white;
+    border: none;
+    padding: 8px 18px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    transition: background 0.15s;
+  }
+  .btn-copy:hover { background: var(--primary-dark); }
+  .btn-copy.copied { background: var(--success); }
+
+  /* ===== Story Arc Visualization ===== */
+  .arc-viz {
+    background: linear-gradient(90deg, transparent 0%, var(--bg-card) 50%, transparent 100%);
+    padding: 16px;
+    border-radius: 12px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    gap: 8px;
+  }
+  .arc-beat {
+    text-align: center;
+    flex: 1;
+  }
+  .arc-beat-dot {
+    width: 12px;
+    height: 12px;
+    background: var(--primary-light);
+    border-radius: 50%;
+    margin: 0 auto 6px;
+  }
+  .arc-beat-label {
+    font-size: 11px;
+    color: var(--gray);
+    font-weight: 600;
+  }
+  .arc-connect {
+    flex: 0.3;
+    height: 2px;
+    background: linear-gradient(90deg, var(--sakura), var(--accent));
+  }
+
+  /* ===== Follow-up ===== */
+  .followup {
+    background: linear-gradient(135deg, #FFF5F7 0%, #FFFBF0 100%);
+    border-left: 4px solid var(--sakura-deep);
+    border-radius: 10px;
+    padding: 20px;
+    margin-top: 18px;
+  }
+  .followup-title {
+    font-weight: 700;
+    color: var(--accent-dark);
+    margin-bottom: 12px;
+    font-size: 14px;
+  }
+  .followup-mode {
+    margin-bottom: 10px;
+  }
+  .mode-label {
+    font-size: 12px;
+    color: var(--gray);
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  .mode-prompt {
+    font-size: 13px;
+    color: var(--dark);
+    background: white;
+    padding: 10px 14px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    font-family: ui-monospace, monospace;
+  }
+
+  /* ===== Bulk Actions ===== */
+  .bulk-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 20px;
+    flex-wrap: wrap;
+  }
+  .btn-secondary {
+    background: white;
+    color: var(--primary);
+    border: 1.5px solid var(--primary);
+    padding: 10px 22px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    transition: all 0.15s;
+  }
+  .btn-secondary:hover {
+    background: var(--primary);
+    color: white;
+  }
+
+  /* ===== Tips Footer ===== */
+  .tips {
+    background: var(--bg-card);
+    border-radius: 14px;
+    padding: 24px;
+    margin-top: 32px;
+  }
+  .tips h3 {
+    font-size: 16px;
+    color: var(--primary);
+    margin-bottom: 14px;
+  }
+  .tips-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 14px;
+  }
+  .tip {
+    background: white;
+    padding: 16px;
+    border-radius: 10px;
+    border-left: 3px solid var(--sakura-deep);
+  }
+  .tip-title {
+    font-weight: 700;
+    color: var(--primary);
+    margin-bottom: 6px;
+    font-size: 13px;
+  }
+  .tip-desc {
+    font-size: 12px;
+    color: var(--gray);
+    line-height: 1.55;
+  }
+
+  /* ===== Footer ===== */
+  footer {
+    text-align: center;
+    padding: 24px;
+    color: var(--gray);
+    font-size: 12px;
+  }
+  footer a {
+    color: var(--primary);
+    text-decoration: none;
+  }
+
+  /* ===== Toast ===== */
+  .toast {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%) translateY(120px);
+    background: var(--dark);
+    color: white;
+    padding: 12px 24px;
+    border-radius: 50px;
+    font-size: 14px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+    transition: transform 0.3s ease;
+    z-index: 100;
+  }
+  .toast.show {
+    transform: translateX(-50%) translateY(0);
+  }
+
+  @media (max-width: 640px) {
+    header { padding: 28px 16px 40px; }
+    h1 { font-size: 26px; }
+    main { padding: 0 16px; }
+    .panel { padding: 20px; }
+    .step-hint { display: none; }
+    .season-row { gap: 6px; }
+    .season-btn { padding: 14px 8px; }
+    .season-emoji { font-size: 22px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-content">
+    <div class="eyebrow">🌸 ANIME PROMPT STUDIO</div>
+    <h1>日系動畫提示詞產生器</h1>
+    <p class="subtitle">選擇你想要的漫畫風格、日本場景、四季與故事類型，自動產出可貼到 Gemini Omni、Luma、Pika 的影片提示詞 ── 每次都是一個三幕小故事。</p>
+  </div>
+</header>
+
+<main>
+
+  <!-- 1. 漫畫風格 -->
+  <section class="panel">
+    <div class="step-header">
+      <div class="step-num">1</div>
+      <div class="step-title">選擇漫畫／動畫風格</div>
+      <div class="step-hint">從 12 種日系視覺語彙中挑一種</div>
+    </div>
+    <div class="style-grid" id="styleGrid"></div>
+  </section>
+
+  <!-- 2. 地點 + 季節 -->
+  <section class="panel">
+    <div class="step-header">
+      <div class="step-num">2</div>
+      <div class="step-title">選擇地點與季節</div>
+      <div class="step-hint">日本標誌性場景 × 四季</div>
+    </div>
+    <div class="location-grid" id="locationGrid"></div>
+    <div class="season-row" id="seasonRow"></div>
+  </section>
+
+  <!-- 3. 故事類型 + 角色 -->
+  <section class="panel">
+    <div class="step-header">
+      <div class="step-num">3</div>
+      <div class="step-title">選擇故事類型</div>
+      <div class="step-hint">每個類型自帶三幕劇結構</div>
+    </div>
+    <div class="genre-grid" id="genreGrid"></div>
+    <div class="character-input">
+      <label>主角設定（選填，留白會用通用描述）</label>
+      <input type="text" id="characterInput" placeholder="例：穿白色制服的高中女生、戴眼鏡的少年..." />
+      <div class="character-examples" id="charExamples">
+        <button class="char-example" data-val="穿水手服的高中女生，黑色短髮">高中女生</button>
+        <button class="char-example" data-val="戴眼鏡的少年，背著吉他">文藝少年</button>
+        <button class="char-example" data-val="穿和服的少女，長黑髮綁紅繩">和服少女</button>
+        <button class="char-example" data-val="穿西裝的上班族男性，疲憊神情">疲憊上班族</button>
+        <button class="char-example" data-val="留銀色短髮的少女，眼神冷靜">冷酷少女</button>
+        <button class="char-example" data-val="戴帽子的小學生，背書包">活潑小學生</button>
+        <button class="char-example" data-val="留長髮的神社巫女，紅白巫女服">巫女</button>
+        <button class="char-example" data-val="穿皮夾克的反叛少年，瀏海遮住一眼">反叛少年</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. 鏡頭風格 -->
+  <section class="panel">
+    <div class="step-header">
+      <div class="step-num">4</div>
+      <div class="step-title">鏡頭風格細節</div>
+      <div class="step-hint">影響畫面氛圍</div>
+    </div>
+    <div class="params">
+      <div class="param">
+        <label>🎬 鏡頭運動</label>
+        <select id="framing">
+          <option value="closeup">特寫鏡頭 close-up</option>
+          <option value="medium">中景 medium shot</option>
+          <option value="wide">廣角 wide shot</option>
+          <option value="lowangle">仰角 low-angle</option>
+          <option value="highangle">俯角 high-angle</option>
+          <option value="dolly">推軌 dolly-in</option>
+          <option value="tracking">跟拍 tracking shot</option>
+          <option value="static">定鏡 static frame</option>
+        </select>
+      </div>
+      <div class="param">
+        <label>💡 光線氛圍</label>
+        <select id="lighting">
+          <option value="golden">黃金時刻 golden hour</option>
+          <option value="soft">柔和自然光 soft daylight</option>
+          <option value="dusk">黃昏夕照 dusk twilight</option>
+          <option value="night">夜晚月光 moonlit night</option>
+          <option value="neon">霓虹反光 neon glow</option>
+          <option value="overcast">陰天柔光 overcast</option>
+          <option value="dramatic">戲劇高反差 dramatic contrast</option>
+        </select>
+      </div>
+      <div class="param">
+        <label>🎭 情緒色調</label>
+        <select id="mood">
+          <option value="nostalgic">懷舊 nostalgic</option>
+          <option value="melancholic">略帶哀愁 melancholic</option>
+          <option value="hopeful">充滿希望 hopeful</option>
+          <option value="energetic">青春熱血 energetic</option>
+          <option value="serene">寧靜 serene</option>
+          <option value="mysterious">神秘 mysterious</option>
+          <option value="romantic">浪漫 romantic</option>
+          <option value="tense">緊張 tense</option>
+        </select>
+      </div>
+      <div class="param">
+        <label>⏱ 時長</label>
+        <select id="duration">
+          <option value="5">5 秒</option>
+          <option value="8" selected>8 秒</option>
+          <option value="10">10 秒</option>
+        </select>
+      </div>
+    </div>
+  </section>
+
+  <div class="generate-bar">
+    <button class="btn-generate" id="generateBtn" disabled>✨ 產生三幕劇提示詞</button>
+  </div>
+
+  <section class="results" id="results">
+    <div class="story-summary" id="storySummary"></div>
+    <div class="arc-viz" id="arcViz"></div>
+    <div id="promptsContainer"></div>
+
+    <div class="bulk-actions">
+      <button class="btn-secondary" id="copyAllBtn">📋 複製整段三幕劇</button>
+      <button class="btn-secondary" id="downloadBtn">⬇ 下載為文字檔</button>
+      <button class="btn-secondary" id="reshuffleBtn">🎲 換一個故事</button>
+      <button class="btn-secondary" id="resetBtn">↻ 重新選擇</button>
+    </div>
+  </section>
+
+  <section class="tips">
+    <h3>💡 進階使用小技巧</h3>
+    <div class="tips-grid">
+      <div class="tip">
+        <div class="tip-title">角色一致性</div>
+        <div class="tip-desc">三段提示詞會用同樣的角色描述，貼到 Omni 時可在對話中說「保持同一個角色」加強連貫。</div>
+      </div>
+      <div class="tip">
+        <div class="tip-title">英文版本通常更準</div>
+        <div class="tip-desc">日系動畫風格的英文詞彙（如 Studio Ghibli、Makoto Shinkai）AI 識別更準確。</div>
+      </div>
+      <div class="tip">
+        <div class="tip-title">活用對話迭代</div>
+        <div class="tip-desc">生完第一版可說「同樣的角色與場景，但改成下雨」「最後一鏡放慢一倍」，Omni 會保持風格延續。</div>
+      </div>
+      <div class="tip">
+        <div class="tip-title">混搭風格實驗</div>
+        <div class="tip-desc">試試「新海誠 + 賽博龐克」「吉卜力 + 異世界」這類組合，往往會產生驚喜畫面。</div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  日系動畫提示詞工作室 ・ Anime Prompt Studio ・
+  <a href="https://github.com/Ian3738/manga-prompt-generator">GitHub Source</a>
+</footer>
+
+<div class="toast" id="toast">已複製</div>
+
+<script>
+// ===== 漫畫／動畫風格 =====
+const STYLES = {
+  ghibli:    { emoji: "🌿", zh: "吉卜力風", en: "Studio Ghibli hand-drawn anime style, warm naturalistic palette, soft hand-painted backgrounds" },
+  shinkai:   { emoji: "🌌", zh: "新海誠風", en: "Makoto Shinkai anime style, hyper-detailed cinematic skies, vivid lens flares, photorealistic environments with stylized characters" },
+  kyoani:    { emoji: "💧", zh: "京阿尼風", en: "Kyoto Animation style, delicate character animation, soft pastel palette, intimate slice-of-life framing" },
+  shonen:    { emoji: "⚡", zh: "少年漫畫風", en: "shōnen manga anime style, dynamic action lines, bold inking, high-energy composition" },
+  shojo:     { emoji: "🌸", zh: "少女漫畫風", en: "shōjo manga aesthetic, sparkle effects, soft watercolor pastels, dreamy romantic atmosphere, screentone shading" },
+  seinen:    { emoji: "🎬", zh: "青年漫畫風", en: "seinen manga style, realistic proportions, mature cinematic atmosphere, muted color palette" },
+  retro90s:  { emoji: "📼", zh: "90 年代復古", en: "1990s retro anime style, cel-shaded with visible animation cels, slight VHS grain, hand-painted backgrounds" },
+  cyberpunk: { emoji: "🌃", zh: "賽博龐克動畫", en: "cyberpunk anime style, rain-soaked neon-lit streets, holographic billboards, Akira-meets-Bladerunner aesthetic" },
+  mecha:     { emoji: "🤖", zh: "機戰動畫", en: "mecha anime style, hard-edged mechanical detail, dramatic backlighting, Gundam/Evangelion influence" },
+  watercolor:{ emoji: "🎨", zh: "水彩繪本風", en: "watercolor illustration anime style, gentle paint bleed, picture-book softness, hand-drawn line work" },
+  blackwhite:{ emoji: "📖", zh: "黑白漫畫稿", en: "black-and-white manga panel style, screentone shading, bold sumi-e ink, monochrome composition" },
+  chibi:     { emoji: "🍡", zh: "Q版可愛風", en: "chibi anime style, super-deformed cute characters, large expressive eyes, pastel candy palette" }
+};
+
+// ===== 日本地點 =====
+const LOCATIONS = {
+  shibuya:        { zh: "東京澀谷街頭", en: "Shibuya crossing in Tokyo with neon signs and bustling crowds" },
+  kyoto_alley:    { zh: "京都古老巷弄", en: "narrow stone alley in traditional Kyoto with wooden machiya houses" },
+  kyoto_shrine:   { zh: "京都神社參道", en: "Kyoto Shinto shrine path lined with red torii gates" },
+  kamakura:       { zh: "鎌倉海邊", en: "Kamakura beach with view of Enoshima island in the distance" },
+  fuji:           { zh: "富士山下", en: "tranquil rural landscape with Mount Fuji rising in the background" },
+  hokkaido:       { zh: "北海道雪原", en: "vast snow-covered plains of rural Hokkaido under wide sky" },
+  okinawa:        { zh: "沖繩海灘", en: "Okinawa tropical beach with white sand and turquoise water" },
+  classroom:      { zh: "高中教室", en: "Japanese high school classroom with afternoon light streaming through windows" },
+  rooftop:        { zh: "校園屋頂", en: "school rooftop with chain-link fence overlooking the city" },
+  matsuri:        { zh: "夏日祭典", en: "summer matsuri festival with paper lanterns, food stalls, and yukata-clad crowds" },
+  sakura:         { zh: "櫻花隧道", en: "tunnel of blooming cherry blossom trees with petals falling" },
+  train:          { zh: "電車內", en: "interior of a quiet Japanese commuter train with sunlight through windows" },
+  konbini:        { zh: "深夜便利商店", en: "Japanese convenience store at midnight with fluorescent lighting" },
+  rice_field:     { zh: "鄉村稻田", en: "rural Japanese rice paddies under wide open sky with distant mountains" },
+  fishing_port:   { zh: "漁港小鎮", en: "small Japanese fishing port at dawn with boats and seagulls" },
+  mountain_temple:{ zh: "山中寺廟", en: "mountain Buddhist temple surrounded by ancient cedar trees" },
+  ramen:          { zh: "拉麵小店", en: "cozy ramen shop interior with steam, red lanterns, and counter seating" },
+  arcade:         { zh: "電玩遊樂場", en: "Japanese game arcade with neon, CRT screens, and crane games" }
+};
+
+// ===== 季節 =====
+const SEASONS = {
+  spring: {
+    emoji: "🌸", zh: "春", en: "spring",
+    elements_zh: "櫻花盛開、粉色花瓣在微風中飄落、空氣清新",
+    elements_en: "cherry blossoms in full bloom, soft pink petals drifting on a gentle breeze, fresh air"
+  },
+  summer: {
+    emoji: "🌻", zh: "夏", en: "summer",
+    elements_zh: "湛藍天空、白雲翻騰、蟬聲、翠綠樹葉",
+    elements_en: "deep blue sky, billowing white cumulus clouds, cicada sounds, vibrant green leaves"
+  },
+  autumn: {
+    emoji: "🍁", zh: "秋", en: "autumn",
+    elements_zh: "紅葉與金黃銀杏、午後金光、涼爽空氣",
+    elements_en: "red maple and golden ginkgo leaves, warm afternoon light, crisp cool air"
+  },
+  winter: {
+    emoji: "❄️", zh: "冬", en: "winter",
+    elements_zh: "輕柔飄雪、呼氣可見的白霧、寂靜",
+    elements_en: "soft snowfall, visible breath in the cold air, quiet stillness"
+  }
+};
+
+// ===== 故事類型（每個都有 3 幕劇結構）=====
+const GENRES = {
+  romance: {
+    emoji: "💕", zh: "戀愛", desc: "從邂逅到心動的瞬間",
+    arcs: [
+      {
+        name: "初次邂逅",
+        scenes: [
+          { beat: "目光交會", action_zh: "與另一個人擦肩而過時，雙方目光短暫交會", action_en: "passing another person, their eyes briefly meet" },
+          { beat: "心動瞬間", action_zh: "停下腳步回頭看，視線停留在對方身上，背景變得朦朧", action_en: "stopping and turning back, gaze lingering on the other as the background softly blurs" },
+          { beat: "餘韻", action_zh: "對方離開後，獨自佇立原地，臉上浮現淡淡微笑", action_en: "as the other walks away, standing alone with a faint smile forming" }
+        ]
+      },
+      {
+        name: "重逢時刻",
+        scenes: [
+          { beat: "等待", action_zh: "獨自站在約定地點，眺望遠方，神情有些焦急", action_en: "standing alone at a meeting spot, looking toward the distance with slight worry" },
+          { beat: "出現", action_zh: "視線中對方的身影終於出現，奔跑而來", action_en: "the other person finally appearing in view, running toward them" },
+          { beat: "緊握", action_zh: "兩人相遇後緊緊牽手，相視而笑", action_en: "the two meet, hands gripping tightly, exchanging warm smiles" }
+        ]
+      }
+    ]
+  },
+  slice_of_life: {
+    emoji: "☕", zh: "校園日常", desc: "平淡卻溫暖的日常時光",
+    arcs: [
+      {
+        name: "放學時光",
+        scenes: [
+          { beat: "下課鐘響", action_zh: "教室中下課鐘聲響起，收拾書包準備離開", action_en: "the dismissal bell ringing in a classroom, packing up a school bag" },
+          { beat: "並肩同行", action_zh: "和朋友走在回家路上，邊走邊聊著瑣碎日常", action_en: "walking home with friends, chatting casually about everyday things" },
+          { beat: "夕陽道別", action_zh: "在岔路口揮手道別，獨自走向夕陽", action_en: "waving goodbye at a fork in the road, then walking off into the sunset alone" }
+        ]
+      },
+      {
+        name: "午休片刻",
+        scenes: [
+          { beat: "午休鐘", action_zh: "午休鐘響，從教室走向頂樓", action_en: "the lunch bell rings, heading from classroom toward the rooftop" },
+          { beat: "獨享午餐", action_zh: "坐在欄杆邊吃便當，望向遠方", action_en: "sitting against the railing eating a bento, gazing out at the view" },
+          { beat: "輕風吹過", action_zh: "微風吹過頭髮，閉眼享受片刻寧靜", action_en: "a breeze passing through hair, eyes closed savoring the quiet moment" }
+        ]
+      }
+    ]
+  },
+  healing: {
+    emoji: "🌱", zh: "治癒系", desc: "孤獨中的小小溫暖",
+    arcs: [
+      {
+        name: "獨處時光",
+        scenes: [
+          { beat: "獨自漫步", action_zh: "獨自走在無人小徑上，背包輕輕搖晃", action_en: "walking alone down an empty path, backpack gently swaying" },
+          { beat: "小小發現", action_zh: "停下腳步，蹲下觀察一隻流浪貓或一朵花", action_en: "stopping and kneeling to observe a stray cat or a single flower" },
+          { beat: "微笑遠望", action_zh: "起身輕輕微笑，眺望天邊，神情寧靜", action_en: "standing up with a soft smile, gazing toward the horizon serenely" }
+        ]
+      }
+    ]
+  },
+  mystery: {
+    emoji: "🔍", zh: "懸疑推理", desc: "尋常之中的異常",
+    arcs: [
+      {
+        name: "詭異線索",
+        scenes: [
+          { beat: "察覺異常", action_zh: "在尋常場景中察覺某件物品不該存在於此", action_en: "noticing an object that doesn't belong in an otherwise ordinary scene" },
+          { beat: "謹慎靠近", action_zh: "小心翼翼地靠近檢視，眼神專注", action_en: "approaching cautiously to examine it, eyes narrowing in focus" },
+          { beat: "未解謎團", action_zh: "鏡頭拉遠，獨自佇立場景中，懸念未解", action_en: "camera pulling back, leaving them as a solitary figure in the scene, mystery unresolved" }
+        ]
+      }
+    ]
+  },
+  isekai: {
+    emoji: "✨", zh: "異世界", desc: "穿越到另一個世界",
+    arcs: [
+      {
+        name: "穿越時刻",
+        scenes: [
+          { beat: "尋常日子", action_zh: "正在日常活動中（通勤、寫作業、發呆）", action_en: "in the middle of an ordinary activity like commuting, doing homework, or daydreaming" },
+          { beat: "光芒包圍", action_zh: "強光突然包圍全身，環境開始扭曲變形", action_en: "blinding light suddenly enveloping them as the environment warps and distorts" },
+          { beat: "新世界", action_zh: "張開眼睛，發現自己身處奇幻新世界，神情驚訝", action_en: "opening their eyes to find themselves in a strange fantasy world, expression of awe" }
+        ]
+      }
+    ]
+  },
+  sports: {
+    emoji: "⚽", zh: "運動青春", desc: "汗水與勝利的瞬間",
+    arcs: [
+      {
+        name: "關鍵一擊",
+        scenes: [
+          { beat: "默默練習", action_zh: "獨自在場上重複練習，汗水滴落", action_en: "practicing alone repeatedly, sweat dripping down" },
+          { beat: "比賽時刻", action_zh: "比賽進入最後關鍵時刻，全神貫注地準備出擊", action_en: "the crucial final moment of the match, fully focused and ready to make the play" },
+          { beat: "勝利歡呼", action_zh: "成功完成關鍵動作，隊友圍上來歡呼擁抱", action_en: "successfully nailing the key play as teammates rush in cheering and embracing" }
+        ]
+      }
+    ]
+  },
+  yokai: {
+    emoji: "👹", zh: "妖怪傳說", desc: "夜路與超自然相遇",
+    arcs: [
+      {
+        name: "夜遇異物",
+        scenes: [
+          { beat: "夜路獨行", action_zh: "夜晚獨自走過古老鳥居或山林小徑，紙燈籠輕搖", action_en: "walking alone at night past an old torii gate, with paper lanterns gently swaying" },
+          { beat: "妖怪現身", action_zh: "突然在角落瞥見模糊的妖怪身影，心跳加速", action_en: "suddenly glimpsing a blurred yokai silhouette in the corner of the eye, heartbeat quickening" },
+          { beat: "微笑或威嚇", action_zh: "妖怪緩緩轉身，對著主角神秘地微笑", action_en: "the yokai slowly turning, offering a mysterious smile" }
+        ]
+      }
+    ]
+  },
+  cyberpunk: {
+    emoji: "💾", zh: "賽博龐克", desc: "霓虹未來城市",
+    arcs: [
+      {
+        name: "霓虹之夜",
+        scenes: [
+          { beat: "雨夜街頭", action_zh: "站在霓虹燈下、雨水反射招牌光芒的街道", action_en: "standing on a rain-soaked street reflecting glowing neon signs" },
+          { beat: "科技異象", action_zh: "突然出現全息廣告或機械生物經過，引起注意", action_en: "a holographic ad suddenly materializes or a mechanical creature passes by, catching attention" },
+          { beat: "融入夜色", action_zh: "轉身走入巷弄，背影融入未來城市的霓虹中", action_en: "turning to walk into an alley, silhouette dissolving into the neon-lit future city" }
+        ]
+      }
+    ]
+  }
+};
+
+// ===== 鏡頭、光線、情緒翻譯表 =====
+const FRAMING = {
+  closeup:   { zh: "特寫", en: "close-up shot" },
+  medium:    { zh: "中景", en: "medium shot" },
+  wide:      { zh: "廣角", en: "wide-angle shot" },
+  lowangle:  { zh: "仰角", en: "low-angle shot" },
+  highangle: { zh: "俯角", en: "high-angle shot" },
+  dolly:     { zh: "推軌", en: "dolly push-in" },
+  tracking:  { zh: "跟拍", en: "tracking shot" },
+  static:    { zh: "定鏡", en: "static frame" }
+};
+const LIGHTING = {
+  golden:    { zh: "黃金時刻光", en: "golden hour lighting" },
+  soft:      { zh: "柔和自然光", en: "soft natural daylight" },
+  dusk:      { zh: "黃昏夕照", en: "dusk twilight lighting" },
+  night:     { zh: "月光夜色", en: "moonlit night lighting" },
+  neon:      { zh: "霓虹反光", en: "neon glow lighting" },
+  overcast:  { zh: "陰天柔光", en: "soft overcast lighting" },
+  dramatic:  { zh: "戲劇高反差光", en: "dramatic high-contrast lighting" }
+};
+const MOODS = {
+  nostalgic:    { zh: "懷舊氛圍", en: "nostalgic mood" },
+  melancholic:  { zh: "略帶哀愁", en: "melancholic atmosphere" },
+  hopeful:      { zh: "充滿希望", en: "hopeful tone" },
+  energetic:    { zh: "青春熱血", en: "energetic vibrant feel" },
+  serene:       { zh: "寧靜氛圍", en: "serene tranquil mood" },
+  mysterious:   { zh: "神秘感", en: "mysterious atmosphere" },
+  romantic:     { zh: "浪漫氛圍", en: "romantic mood" },
+  tense:        { zh: "緊張氣氛", en: "tense atmosphere" }
+};
+
+// ===== State =====
+let selected = {
+  style: null,
+  location: null,
+  season: null,
+  genre: null,
+  currentArc: 0,
+};
+
+// ===== Render Style Cards =====
+const styleGrid = document.getElementById('styleGrid');
+Object.entries(STYLES).forEach(([key, style]) => {
+  const card = document.createElement('button');
+  card.className = 'style-card';
+  card.dataset.style = key;
+  card.innerHTML = `
+    <div class="style-emoji">${style.emoji}</div>
+    <div class="style-name">${style.zh}</div>
+    <div class="style-en">${style.en.split(',')[0]}</div>
+  `;
+  card.addEventListener('click', () => { selected.style = key; updateUI(); });
+  styleGrid.appendChild(card);
+});
+
+// ===== Render Location Cards =====
+const locationGrid = document.getElementById('locationGrid');
+Object.entries(LOCATIONS).forEach(([key, loc]) => {
+  const card = document.createElement('button');
+  card.className = 'location-card';
+  card.dataset.location = key;
+  card.textContent = loc.zh;
+  card.addEventListener('click', () => { selected.location = key; updateUI(); });
+  locationGrid.appendChild(card);
+});
+
+// ===== Render Season Buttons =====
+const seasonRow = document.getElementById('seasonRow');
+Object.entries(SEASONS).forEach(([key, season]) => {
+  const btn = document.createElement('button');
+  btn.className = 'season-btn';
+  btn.dataset.season = key;
+  btn.innerHTML = `
+    <span class="season-emoji">${season.emoji}</span>
+    <div class="season-name">${season.zh}</div>
+    <div class="season-en">${season.en}</div>
+  `;
+  btn.addEventListener('click', () => { selected.season = key; updateUI(); });
+  seasonRow.appendChild(btn);
+});
+
+// ===== Render Genre Cards =====
+const genreGrid = document.getElementById('genreGrid');
+Object.entries(GENRES).forEach(([key, genre]) => {
+  const card = document.createElement('button');
+  card.className = 'genre-card';
+  card.dataset.genre = key;
+  card.innerHTML = `
+    <div class="genre-name">${genre.emoji} ${genre.zh}</div>
+    <div class="genre-desc">${genre.desc}</div>
+  `;
+  card.addEventListener('click', () => { selected.genre = key; selected.currentArc = 0; updateUI(); });
+  genreGrid.appendChild(card);
+});
+
+// ===== Character examples =====
+document.querySelectorAll('.char-example').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.getElementById('characterInput').value = btn.dataset.val;
+  });
+});
+
+// ===== Update UI states =====
+function updateUI() {
+  document.querySelectorAll('.style-card').forEach(c => c.classList.toggle('active', c.dataset.style === selected.style));
+  document.querySelectorAll('.location-card').forEach(c => c.classList.toggle('active', c.dataset.location === selected.location));
+  document.querySelectorAll('.season-btn').forEach(c => c.classList.toggle('active', c.dataset.season === selected.season));
+  document.querySelectorAll('.genre-card').forEach(c => c.classList.toggle('active', c.dataset.genre === selected.genre));
+
+  const ready = selected.style && selected.location && selected.season && selected.genre;
+  document.getElementById('generateBtn').disabled = !ready;
+}
+
+// ===== Generate =====
+document.getElementById('generateBtn').addEventListener('click', () => generate());
+
+function pickArc(genre) {
+  // 第一次選了 genre 後，從第 0 個 arc 開始；按「換一個故事」會輪替
+  const arcs = GENRES[genre].arcs;
+  return arcs[selected.currentArc % arcs.length];
+}
+
+function buildPrompt(style, location, season, scene, framing, lighting, mood, duration, charDescZh, charDescEn) {
+  const charZh = charDescZh || "一位主角";
+  const charEn = charDescEn || "a protagonist";
+
+  const promptZh = `${style.zh}風格，${framing.zh}鏡頭，${charZh}在${location.zh}${scene.action_zh}，${season.elements_zh}，${lighting.zh}，${mood.zh}，${duration} 秒。`;
+  const promptEn = `${style.en}, ${framing.en} of ${charEn} ${scene.action_en} in ${location.en}, with ${season.elements_en}, ${lighting.en}, ${mood.en}, ${duration} seconds.`;
+
+  return { zh: promptZh, en: promptEn };
+}
+
+function generate() {
+  const style = STYLES[selected.style];
+  const location = LOCATIONS[selected.location];
+  const season = SEASONS[selected.season];
+  const genre = GENRES[selected.genre];
+  const arc = pickArc(selected.genre);
+  const framing = FRAMING[document.getElementById('framing').value];
+  const lighting = LIGHTING[document.getElementById('lighting').value];
+  const mood = MOODS[document.getElementById('mood').value];
+  const duration = document.getElementById('duration').value;
+  const charDesc = document.getElementById('characterInput').value.trim();
+  const charDescZh = charDesc;
+  const charDescEn = charDesc; // 用同樣描述（中文敘述對 Omni 也可），實際上 Omni 接受中英混合
+
+  // Summary
+  document.getElementById('storySummary').innerHTML = `
+    <h2>${genre.emoji} ${arc.name}</h2>
+    <div class="story-meta">
+      <span class="meta-tag">${style.zh}</span>
+      <span class="meta-tag">${location.zh}</span>
+      <span class="meta-tag">${season.emoji} ${season.zh}季</span>
+      <span class="meta-tag">${genre.zh}</span>
+      <span class="meta-tag">${duration} 秒 × 3 幕</span>
+    </div>
+  `;
+
+  // Arc visualization
+  const arcViz = document.getElementById('arcViz');
+  arcViz.innerHTML = '';
+  arc.scenes.forEach((scene, i) => {
+    const beat = document.createElement('div');
+    beat.className = 'arc-beat';
+    beat.innerHTML = `<div class="arc-beat-dot"></div><div class="arc-beat-label">幕 ${i+1}：${scene.beat}</div>`;
+    arcViz.appendChild(beat);
+    if (i < arc.scenes.length - 1) {
+      const conn = document.createElement('div');
+      conn.className = 'arc-connect';
+      arcViz.appendChild(conn);
+    }
+  });
+
+  // Prompts
+  const container = document.getElementById('promptsContainer');
+  container.innerHTML = '';
+  arc.scenes.forEach((scene, idx) => {
+    const prompts = buildPrompt(style, location, season, scene, framing, lighting, mood, duration, charDescZh, charDescEn);
+
+    const card = document.createElement('div');
+    card.className = 'prompt-card';
+    card.innerHTML = `
+      <div class="prompt-header">
+        <div class="scene-num">${idx + 1}</div>
+        <div class="scene-title">第 ${idx + 1} 幕</div>
+        <div class="scene-beat">${scene.beat}</div>
+      </div>
+      <div class="prompt-body">
+        <div class="prompt-lang-tabs">
+          <button class="lang-tab active" data-lang="zh">繁體中文</button>
+          <button class="lang-tab" data-lang="en">English（推薦）</button>
+        </div>
+        <div class="prompt-text" data-lang="zh">${prompts.zh}</div>
+        <div class="prompt-text hidden" data-lang="en">${prompts.en}</div>
+        <div class="prompt-actions">
+          <button class="btn-copy">📋 複製這一幕</button>
+        </div>
+      </div>
+    `;
+
+    const tabs = card.querySelectorAll('.lang-tab');
+    const texts = card.querySelectorAll('.prompt-text');
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        tabs.forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        texts.forEach(t => t.classList.toggle('hidden', t.dataset.lang !== tab.dataset.lang));
+      });
+    });
+    card.querySelector('.btn-copy').addEventListener('click', (e) => {
+      const lang = card.querySelector('.lang-tab.active').dataset.lang;
+      const text = card.querySelector(`.prompt-text[data-lang="${lang}"]`).textContent;
+      copy(text);
+      e.target.textContent = '✓ 已複製';
+      e.target.classList.add('copied');
+      setTimeout(() => {
+        e.target.textContent = '📋 複製這一幕';
+        e.target.classList.remove('copied');
+      }, 1500);
+    });
+
+    container.appendChild(card);
+  });
+
+  // Followup
+  const followup = document.createElement('div');
+  followup.className = 'followup';
+  followup.innerHTML = `
+    <div class="followup-title">✨ 用 Omni 生成後，可在對話中這樣繼續迭代</div>
+    <div class="followup-mode">
+      <div class="mode-label">🎨 換風格（保持角色與故事）</div>
+      <div class="mode-prompt">「保持同一個角色與場景，把風格改成新海誠那種藍天白雲」</div>
+    </div>
+    <div class="followup-mode">
+      <div class="mode-label">🌧 換氛圍</div>
+      <div class="mode-prompt">「同樣的三幕劇，但場景改成下雨的夜晚」「色調改成黃昏」</div>
+    </div>
+    <div class="followup-mode">
+      <div class="mode-label">⏱ 微調節奏</div>
+      <div class="mode-prompt">「第二幕放慢一倍速度」「第三幕的微笑特寫再加 2 秒」</div>
+    </div>
+  `;
+  container.appendChild(followup);
+
+  document.getElementById('results').classList.add('show');
+  document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// ===== Bulk actions =====
+document.getElementById('copyAllBtn').addEventListener('click', () => {
+  const sceneCards = document.querySelectorAll('.prompt-card');
+  const text = Array.from(sceneCards).map((card, i) => {
+    const beat = card.querySelector('.scene-beat').textContent;
+    const lang = card.querySelector('.lang-tab.active').dataset.lang;
+    const promptText = card.querySelector(`.prompt-text[data-lang="${lang}"]`).textContent;
+    return `【第 ${i+1} 幕 · ${beat}】\n${promptText}`;
+  }).join('\n\n');
+  copy(text);
+  showToast('已複製整段三幕劇');
+});
+
+document.getElementById('downloadBtn').addEventListener('click', () => {
+  const summary = document.getElementById('storySummary');
+  const lines = [`# ${summary.querySelector('h2').textContent}`, ''];
+  summary.querySelectorAll('.meta-tag').forEach(t => lines.push(`- ${t.textContent}`));
+  lines.push('');
+  document.querySelectorAll('.prompt-card').forEach((card, i) => {
+    const beat = card.querySelector('.scene-beat').textContent;
+    const zh = card.querySelector('.prompt-text[data-lang="zh"]').textContent;
+    const en = card.querySelector('.prompt-text[data-lang="en"]').textContent;
+    lines.push(`## 第 ${i+1} 幕：${beat}`);
+    lines.push('');
+    lines.push('【繁體中文】');
+    lines.push(zh);
+    lines.push('');
+    lines.push('【English】');
+    lines.push(en);
+    lines.push('');
+  });
+  const blob = new Blob([lines.join('\n')], { type: 'text/plain;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `日系動畫提示詞_${Date.now()}.txt`;
+  a.click();
+  URL.revokeObjectURL(url);
+});
+
+document.getElementById('reshuffleBtn').addEventListener('click', () => {
+  if (!selected.genre) return;
+  selected.currentArc++;
+  generate();
+});
+
+document.getElementById('resetBtn').addEventListener('click', () => {
+  selected = { style: null, location: null, season: null, genre: null, currentArc: 0 };
+  document.getElementById('characterInput').value = '';
+  document.getElementById('results').classList.remove('show');
+  updateUI();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+
+// ===== Utils =====
+function copy(text) {
+  if (navigator.clipboard) navigator.clipboard.writeText(text);
+  else {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+  }
+}
+const toast = document.getElementById('toast');
+function showToast(msg) {
+  toast.textContent = msg;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 1800);
+}
+</script>
+</body>
+</html>
